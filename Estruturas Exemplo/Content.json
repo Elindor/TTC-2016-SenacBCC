@@ -1,0 +1,71 @@
+// Walkable, block, wall (Não necessáriamente não andável, mas antecede um bloco)
+
+{
+	"Tiles":[
+		{
+			"Name": String,
+			"Id": Int,
+			"ImageDir": String,
+			"Type": Int,		// Walkable, Block, etc
+			"ScatterRules":[
+				{
+					"Chance": Int,	// não é 0 a 100. A conta é feita com a chance de cada tile/somatória das chances.
+					"Id": Int
+				},
+				{...}
+			],
+		},
+		{...}	
+	],
+
+	"Rooms": [
+		{
+			"Name": String,
+			"Id": Int,
+			"Map": [			// Cada ponto no mapa de string é uma tile.
+				String,
+				String,
+				String,
+				String,
+				String
+			],
+			"EasternDoors": [
+				{
+					"Height": Int
+				},
+				{...}
+			]
+			"WesternDoors": [
+				{
+					"Height": Int
+				},
+				{...}
+			]
+			"SouthernDoors": [
+				{
+					"Width": Int
+				},
+				{...}
+			]
+			"NorthernDoors": [
+				{
+					"Width": Int
+				},
+				{...}
+			]
+			"Crossovers":[
+				{
+					"RoomId": Int,
+					yadayadayada
+				},
+				{...}
+			]
+					
+			
+		},
+		{...}
+	]
+}
+
+
+

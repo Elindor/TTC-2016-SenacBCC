@@ -1,0 +1,27 @@
+{
+	"mapName" : string,
+	"GenerationType" : int,
+	"Width" : int,
+	"Height" : int,
+	"MinimalContent" : Float,
+	"MaximumContent" : Float,
+	"ConditionSet" : String,
+	"ContentSet" : String,
+	"Seed" :{
+		" StartingPointMode" : int, // Random, fixed
+		" StartingPointX" : int,
+		" StartingPointY" : int,
+		" Towards" : int // Center or any direction
+}
+" SpecificTiles" :[
+{
+	" TileId" : int,
+	" TileX" : Int,
+	" TileY" : Int,
+}
+{...}	
+]
+	
+
+}
+
