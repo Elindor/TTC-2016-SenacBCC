@@ -1,14 +1,14 @@
 {
 	"GeneticRules" : {
-		"Corridors":{
+		"Corridors":{ // for generation
 			"Exists": BOOL,
 			"MayFork": BOOL,
 			"ForkLimit": Int,		// Default: 3
 			"Type": Int,	// Retos, possivelmente inclinados, com curvas, ruidósos, sem saida.
 			"RoomAdjacency": BOOL	// Se sim, são possibilita mesmo com corredores
 		}, 
-		"Loops": BOOL,
-		"SpecificRooms":[
+		"Loops": BOOL, // for generation
+		"SpecificRooms":[ //for map
 			{
 				"TileId": Int,
 				"TileX": Int,

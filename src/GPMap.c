@@ -26,7 +26,39 @@ GPMap* generateMap(char*mapCorePath){
 	// Processa Mapa
 	switch(generationType){
 		case GPGenerationType_Genetic:
+			int condiction = 0; // 0 ou 1 se estar atendendo todas as condições
+			
+			
+			//Gerar grupo de salas -- (mapa, arquivo de salas)
+				//Fixar salas Especiais no mapa
+			
 
+
+
+			//Pegar condições gerais -- acho que gerer um struct com ela deve ajudar
+			Room RoomNow;
+			char geneSelecionade;
+			while(!condiction){
+
+
+				//Inicio da geração -- loop enquanto n atingir a condiçao ou o limite 
+				RoomNow = mapa[x][y];
+				geneSelecionade = selectdoor(RoomNow);
+				if(geneSelecionade != "0"){
+					conjunctPossibility = GerateListPossibylit(geneSelecionade, AllRooms);
+					conjunctPossibility = RemoveListImpossibylit(RoomNow, conjunctPossibility);
+
+				}
+					// preferencia a garantir rota, localiza melhor caminho
+								// com a rota preferencial seleciona a porta(filha) e isola os canditados
+									//  ---  map[N/S][L/W] = genetic( filha, canditados) -- retorna sala com a porta conexão preencida	
+											//Isolar grupo de salas posiveis
+											//Remover todas as incomaptibilidades
+											// "sortear" sala
+				}
+				// Teste de resultado
+							
+			}
 		break;
 		case GPGenerationType_Automata:
 
@@ -42,6 +74,37 @@ GPMap* generateMap(char*mapCorePath){
 
 }
 
+char selectdoor(room *atual){
+	int i;
+	char chose;
+	for( i = 0; i < atual->Quantdoors; i ++ ){
+		if(atual->doors[i].idNextRoom == NULL)
+			switch(atual->doors[i].gene)
+			{
+				case "N":
+				case "n":
+					chose = "S";
+					break;
+				case "S":
+				case "s":
+					chose = "N";
+					break;
+				case "L":
+				case "l":
+					chose = "O";
+					break;
+				case "O":
+				case "o":
+					chose = "L";
+					break;
+			}
+			return chose;
+	}
+
+	return "0";
+}
+
+
 int releaseMap(GPMap *map){
 
 	int i, j;
@@ -53,7 +116,6 @@ int releaseMap(GPMap *map){
 	free(map);
 	return 1;
 }
-
 
 void outputCurrentMapToFile(GPMap *map, char* filename){
 
@@ -83,6 +145,10 @@ void outputCurrentMapToFile(GPMap *map, char* filename){
 }
 
 
+room* getRoom(GPMap*map, int xPosition, int yPosition){
+	
+	return map.grid[xPosition][yPosition];
+}
 
 tile* getTile(GPMap*map, int xPosition, int yPosition){
 
