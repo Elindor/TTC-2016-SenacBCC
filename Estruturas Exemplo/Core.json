@@ -12,7 +12,7 @@
 		" StartingPointX" : int,
 		" StartingPointY" : int,
 		" Towards" : int // Center or any direction
-}
+	}
 " SpecificTiles" :[
 {
 	" TileId" : int,
@@ -21,7 +21,16 @@
 }
 {...}	
 ]
-	
+" SpecificRoom" :[
+{
+	" RoomId" : int,
+	//ponto onde a sala vai ficar no mapa
+	" RoomX" : Int,
+	" RoomY" : Int,
+}
+{...}	
+]
+
 
 }
 

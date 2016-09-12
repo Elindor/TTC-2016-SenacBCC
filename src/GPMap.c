@@ -146,9 +146,39 @@ GPMap* generateMap(char*mapCorePath){
 
 	// Processa Mapa
 	switch(1){
-		case GPGenerationType_Genetic:
+        case GPGenerationType_Genetic:{
+            int condition = 0; // 0 ou 1 se estar atendendo todas as condições
+            
+            
+            //Gerar grupo de salas -- (mapa, arquivo de salas)
+            //Fixar salas Especiais no mapa
+            
+            
+            //Pegar condições gerais -- acho que gerer um struct com ela deve ajudar
+//            GMRoom RoomNow;   // Falta malloc
+//            char selectedGene;
+//            while(!condition){
+            
+                
+                //Inicio da geração -- loop enquanto n atingir a condiçao ou o limite
+//                RoomNow = map[x][y];
+//                selectedGene = selectdoor(RoomNow);
+//                if(selectedGene != "0"){
+//                    conjunctPossibility = GerateListPossibylit(geneSelecionade, AllRooms);
+//                    conjunctPossibility = RemoveListImpossibylit(RoomNow, conjunctPossibility);
+//                    
+//                }
+                // preferencia a garantir rota, localiza melhor caminho
+                // com a rota preferencial seleciona a porta(filha) e isola os canditados
+                //  ---  map[N/S][L/W] = genetic( filha, canditados) -- retorna sala com a porta conexão preencida
+                //Isolar grupo de salas posiveis
+                //Remover todas as incomaptibilidades
+                // "sortear" sala
+//            }
+            // Teste de resultado
+            break;
 
-		break;
+        }
 		case GPGenerationType_Automata:
 
 		break;
@@ -164,6 +194,38 @@ GPMap* generateMap(char*mapCorePath){
     return map;
 }
 
+char selectdoor(GMRoom *atual){
+	int i;
+	char chosen = '0';
+	for( i = 0; i < atual->Quantdoors; i++ ){
+        if(atual->doors[i].idNextRoom == -1){            // DENIS, tava null, não se usa null pra int em C. Use um valor negativo
+			switch(atual->doors[i].gene)
+			{
+				case 'N':
+				case 'n':
+					chosen = 'S';
+					break;
+				case 'S':
+				case 's':
+					chosen = 'N';
+					break;
+				case 'L':
+				case 'l':
+					chosen = 'O';
+					break;
+				case 'O':
+				case 'o':
+					chosen = 'L';
+					break;
+			}
+			return chosen;
+        }
+	}
+
+	return '0';
+}
+
+
 int releaseMap(GPMap *map){
 
 	int i, j;
@@ -175,7 +237,6 @@ int releaseMap(GPMap *map){
 	free(map);
 	return 1;
 }
-
 
 void outputCurrentMapToFile(GPMap *map, char* filename){
 
@@ -212,5 +273,10 @@ GMTile getTile (GPMap* map, int xPosition, int yPosition){
 }
 
 
+//GMRoom getRoom(GPMap* map, int xPosition, int yPosition){ Essa é uma TILE, vc precisa de uma estrutura auxiliar de conteudo pra buscar uma sala. Faz um array de salas comum.
+//    GMRoom room = map->grid[xPosition][yPosition];
+//
+//    return;
+//}
 
 

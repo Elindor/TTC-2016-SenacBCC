@@ -20,8 +20,12 @@
 
 	"Rooms": [
 		{
-			"Name": String,
-			"Id": Int,
+			"Name": String,// pode repetir
+			"Id": Int,// unico
+			"Tam": Int, // quanto espaço a sala vai ocupar na matriz geral
+			"Width" : int,
+			"Height" : int,
+			"chance": int, //chance geral como todo conjunto
 			"Map": [			// Cada ponto no mapa de string é uma tile.
 				String,
 				String,
@@ -29,34 +33,65 @@
 				String,
 				String
 			],
-			"EasternDoors": [
+			"NorthernDoors": [
 				{
-					"Height": Int
+					"Id" :int,
+					"Width": Int
 				},
 				{...}
-			]
-			"WesternDoors": [
+			],
+			"EasternDoors": [
 				{
+					"Id" :int,
 					"Height": Int
 				},
 				{...}
 			]
 			"SouthernDoors": [
 				{
+					"Id" :int,
 					"Width": Int
 				},
 				{...}
 			]
-			"NorthernDoors": [
+			"WesternDoors": [
 				{
-					"Width": Int
+					"Id" :int,
+					"Height": Int
 				},
 				{...}
 			]
+			
+			
 			"Crossovers":[
 				{
-					"RoomId": Int,
-					yadayadayada
+					"IncompatibilityWithExit":[
+						{
+							"RoomId": Int, // ou o id da sala ou o conjunto de genes
+							"Genes": String, //Pode ser int analisar 
+							"Door": String, // ou int vai depender de como o gene vai estar de finido 
+						}
+						{...}
+					],
+					"IncompatibilityWithEntrad":[
+						{
+							"RoomId": Int, // ou o id da sala ou o conjunto de genes
+							"Genes": String, //Pode ser int analisar
+							"Door": String, // ou int vai depender de como o gene vai estar de finido 
+							
+						}
+						{...}
+					],
+					"CompatibilityWithExit":[
+						{
+							"Chance":Int,
+							"Id": Int, // ou o id da sala ou o conjunto de genes
+							"Genes": String, //Pode ser int analisar
+							"Door": String, // ou int vai depender de como o gene vai estar de finido 
+							
+						}
+						{...}
+					],
 				},
 				{...}
 			]
