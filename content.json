@@ -1,0 +1,33 @@
+{
+	"Tiles": [{
+		"Name": "water",
+		"Id": 0,
+		"ImageDir": "img/water.png",
+		"Type": 1,
+		"ScatterRules": null
+	}, {
+		"Name": "grass",
+		"Id": 1,
+		"ImageDir": "img/grass.png",
+		"Type": 0,
+		"ScatterRules": [{
+			"Chance": 30,
+			"Id": 2
+		}, {
+			"Chance": 70,
+			"Id": 1
+		}]
+	}, {
+		"Name": "sand",
+		"Id": 2,
+		"ImageDir": "img/sand.png",
+		"Type": 0,
+		"ScatterRules": [{
+			"Chance": 5,
+			"Id": 1
+		}, {
+			"Chance": 30,
+			"Id": 2
+		}]
+	}]
+}

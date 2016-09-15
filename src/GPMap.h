@@ -62,6 +62,8 @@ typedef struct _map{
 	char *contentPathSet;
 	int height;
 	int width;
+    int maximumContent;
+    int minimalContent;
 	GMTile **grid;
 }GPMap;
 

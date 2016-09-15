@@ -1,5 +1,6 @@
 #include "GPMap.h"
 
+static GPMap *map;
 
 static void print_depth_shift(int depth)
 {
@@ -9,7 +10,7 @@ static void print_depth_shift(int depth)
     }
 }
 
-static void process_value(json_value* value, int depth);
+static void process_value(json_value* value, int depth, char* name);
 
 static void process_object(json_value* value, int depth)
 {
@@ -21,7 +22,7 @@ static void process_object(json_value* value, int depth)
     for (x = 0; x < length; x++) {
         print_depth_shift(depth);
         printf("object[%d].name = %s\n", x, value->u.object.values[x].name);
-        process_value(value->u.object.values[x].value, depth+1);
+        process_value(value->u.object.values[x].value, depth+1, value->u.object.values[x].name);
     }
 }
 
@@ -34,13 +35,13 @@ static void process_array(json_value* value, int depth)
     length = value->u.array.length;
     printf("array\n");
     for (x = 0; x < length; x++) {
-        process_value(value->u.array.values[x], depth);
+        process_value(value->u.array.values[x], depth, NULL);
     }
 }
 
-static void process_value(json_value* value, int depth)
+static void process_value(json_value* value, int depth, char* name)
 {
-    int j;
+//    int j;
     if (value == NULL) {
         printf("NULL value\n");
         return;
@@ -59,16 +60,45 @@ static void process_value(json_value* value, int depth)
             process_array(value, depth+1);
             break;
         case json_integer:
-            printf("int: %10" PRId64 "\n", value->u.integer);
+            
+            if(!strcmp (name,"Width")){
+                printf("Acquired width: %lld\n", value->u.integer);
+                map->width = (int)value->u.integer;
+            }
+            else if(!strcmp (name,"Height")){
+                printf("Acquired height: %lld\n", value->u.integer);
+                map->height = (int)value->u.integer;
+            }
+            else if(!strcmp (name,"MinimalContent")){
+                printf("Acquired minimal: %lld\n", value->u.integer);
+                map->minimalContent = (int)value->u.integer;
+            }
+            else if(!strcmp (name,"MaximumContent")){
+                printf("Acquired maximum: %lld\n", value->u.integer);
+                map->maximumContent = (int)value->u.integer;
+            }
+            else
+            printf("int: %10" PRId64  "\n", value->u.integer);
+            
             break;
         case json_double:
             printf("double: %f\n", value->u.dbl);
             break;
         case json_string:
-            printf("string: %s\n", value->u.string.ptr);
+            if(!strcmp (name,"ConditionSet")){
+                printf("Acquired ConditionSet: %s\n", value->u.string.ptr);
+                map->conditionFilePath = value->u.string.ptr;
+            }
+            else if(!strcmp (name,"ContentSet")){
+                printf("Acquired ContentSet: %s\n", value->u.string.ptr);
+                map->contentPathSet = value->u.string.ptr;
+            }
+            else printf("string: %s\n", value->u.string.ptr);
             break;
         case json_boolean:
             printf("bool: %d\n", value->u.boolean);
+            break;
+        default:
             break;
     }
 }
@@ -78,12 +108,9 @@ enum GPGeneration_Type {GPGenerationType_Automata = 0, GPGenerationType_Genetic,
 
 GPMap* generateMap(char*mapCorePath){
 
-	GPMap *map = malloc(sizeof(map));
+	map = malloc(sizeof(map));
 
 	// Busca Informação Básica
-
-	map->width = 50;
-	map->height = 50;
 
     FILE *coreFile;
     struct stat filestatus;
@@ -94,7 +121,7 @@ GPMap* generateMap(char*mapCorePath){
         fprintf(stderr, "File %s not found\n", mapCorePath);
         return NULL;
     }
-    file_size = filestatus.st_size;
+    file_size = (int)filestatus.st_size;
     file_contents = (char*)malloc(filestatus.st_size);
     if ( file_contents == NULL) {
         fprintf(stderr, "Memory error: unable to allocate %d bytes\n", file_size);
@@ -127,9 +154,13 @@ GPMap* generateMap(char*mapCorePath){
     value = json_parse(json,file_size);
     printf("here %ld\n", sizeof(value));
 
+    if (value == NULL) {
+        fprintf(stderr, "Unable to parse data in %s; JSON structure is probably not valid. Try dubbuging at http://jsonlint.com \n", mapCorePath);
+        free(file_contents);
+        exit(1);
+    }
     
-    
-    process_value(value, 0);
+    process_value(value, 0, NULL);
     
     json_value_free(value);
     free(file_contents);

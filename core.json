@@ -1,24 +1,26 @@
 {
-	"mapName" : "nomeMapa",
-	"GenerationType" : 1,
-	"Width" : 60,
-	"Height" : 70,
-	"MinimalContent" : 30,
-	"MaximumContent" : 80,
-	"ConditionSet" : "condition.json",
-	"ContentSet" : "content.json",
-	"Seed" :{
-		" StartingPointMode" : 0, // Random, fixed
-		" StartingPointX" : 13,
-		" StartingPointY" : 14,
-		" Towards" : 1 // Center or any direction
+	"mapName": "nomeMapa",
+	"GenerationType": 1,
+	"Width": 60,
+	"Height": 70,
+	"MinimalContent": 30,
+	"MaximumContent": 80,
+	"ConditionSet": "condition.json",
+	"ContentSet": "content.json",
+	"Seed": {
+		" StartingPointMode": 0,
+		" StartingPointX": 13,
+		" StartingPointY": 14,
+		" Towards": 1
 	},
-	" SpecificTiles" :[
-		{
-			" TileId" : 1,
-			" TileX" : 13,
-			" TileY" : 14,
-		}
-	]	
+	" SpecificTiles": [{
+		"TileId": 1,
+		"TileX": 13,
+		"TileY": 14
+	},
+	{
+		"TileId": 1,
+		"TileX": 14,
+		"TileY": 14
+	}]
 }
-

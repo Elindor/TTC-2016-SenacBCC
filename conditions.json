@@ -1,0 +1,57 @@
+{
+	"GeneticRules" : {
+		"Corridors":{ // for generation
+			"Exists": BOOL,
+			"MayFork": BOOL,
+			"ForkLimit": Int,		// Default: 3
+			"Type": Int,	// Retos, possivelmente inclinados, com curvas, ruidósos, sem saida.
+			"RoomAdjacency": BOOL	// Se sim, são possibilita mesmo com corredores
+		}, 
+		"Loops": BOOL, // for generation
+		"SpecificRooms":[ //for map
+			{
+				"TileId": Int,
+				"TileX": Int,
+				"TileY": Int
+			},
+			{...}	
+		]
+	},
+
+	"AutomataRules" : {
+		"ChaosLevel": Float, 	// adds variance range to common scatter rules
+		"MinimalCircle": Int,	// Em toda posição do mapa deve ser caminhável o espaço de um circulo de raio Int
+		"MaximalCircle": Int, 	//Em toda posição do mapa deve NO MAXIMO ser caminhável o espaço de um circulo de raio Int
+		"PathRules": {
+			"MinimalConnections": Int,
+			"MaximumConnections": Int,
+			"AppliesForSpecific": BOOL,		// Def true
+			"AppliesForSpecial": BOOL		// Def true
+		},
+		"RespectWalls": BOOL, // Se sim, sempre preenche com uma parede antes de "Bloco"
+	},	
+
+		"SpecificTiles":[
+			{
+				"TileId": Int,
+				"TileX": Int,
+				"TileY": Int
+			},
+			{...}	
+		],
+		"SpecialTiles":[
+			{
+				"TileId": Int,
+				"MinimalAmmount": Int,
+				"MaximumAmmount": Int,
+				"Positioning": Int,	// igualmente distantes, random, próximos, etc
+				"Placement": [
+						"TileID": Int,
+						...
+				],
+			},
+			{...}
+		],
+
+		"MaximumRetries": Int,	// Default 5, se passar reseta função
+}
