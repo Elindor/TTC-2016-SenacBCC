@@ -33,35 +33,18 @@
 				String,
 				String
 			],
-			"NorthernDoors": [
+
+			"Gene": String,	// Define o conjunto de conexão por hora só os quatro pontos cardeais
+			"Doors":[		
 				{
-					"Id" :int,
-					"Width": Int
+					"Id" :Int,
+					"Width": Int,
+					"Height": Int,
+					"Gene": String
 				},
 				{...}
+
 			],
-			"EasternDoors": [
-				{
-					"Id" :int,
-					"Height": Int
-				},
-				{...}
-			]
-			"SouthernDoors": [
-				{
-					"Id" :int,
-					"Width": Int
-				},
-				{...}
-			]
-			"WesternDoors": [
-				{
-					"Id" :int,
-					"Height": Int
-				},
-				{...}
-			]
-			
 			
 			"Crossovers":[
 				{

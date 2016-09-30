@@ -29,12 +29,12 @@ typedef struct _door{
 }GMDoor;
 
 typedef struct _crossover{
-	
+
 	int id; // não necessita dos dois
 	char *genes;
 	int chance; // na incompatibilidade é ignorado
-	
-	
+
+
 }crossover;
 
 typedef struct _room{
@@ -45,7 +45,7 @@ typedef struct _room{
 	int chance;
 	GMTile **mapIntern;
 	char *gene;	// N L S O
-	
+
 
 	int Quantdoors;
 	GMDoor *doors;
