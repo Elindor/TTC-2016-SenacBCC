@@ -1,3 +1,7 @@
+#ifndef GPMapBlock
+#define GPMapBlock
+
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -64,12 +68,14 @@ typedef struct _map{
 	int width;
     int maximumContent;
     int minimalContent;
-	GMTile **grid;
+    int generation;
+	GMTile ***grid;
 }GPMap;
 
 GPMap* generateMap(char*mapCorePath);
 int releaseMap(GPMap *map);
 void outputCurrentMapToFile(GPMap *map, char* filename);
-GMTile getTile (GPMap* map, int xPosition, int yPosition);
+void outputCurrentMapToStream(GPMap *map);
+GMTile *getTile (GPMap *map, int xPosition, int yPosition);
 
-
+#endif

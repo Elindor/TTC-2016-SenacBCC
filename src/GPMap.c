@@ -1,4 +1,5 @@
 #include "GPMap.h"
+#include "GPAutomata.h"
 
 static GPMap *map;
 
@@ -49,6 +50,7 @@ static void process_value(json_value* value, int depth, char* name)
     if (value->type != json_object) {
         print_depth_shift(depth);
     }
+    
     switch (value->type) {
         case json_none:
             printf("none\n");
@@ -60,23 +62,28 @@ static void process_value(json_value* value, int depth, char* name)
             process_array(value, depth+1);
             break;
         case json_integer:
-            
+            if(name == NULL)
+                return;
             if(!strcmp (name,"Width")){
-                printf("Acquired width: %lld\n", value->u.integer);
                 map->width = (int)value->u.integer;
+                printf("Acquired width: %d\n", map->width);
             }
             else if(!strcmp (name,"Height")){
                 printf("Acquired height: %lld\n", value->u.integer);
                 map->height = (int)value->u.integer;
             }
-            else if(!strcmp (name,"MinimalContent")){
-                printf("Acquired minimal: %lld\n", value->u.integer);
-                map->minimalContent = (int)value->u.integer;
+            else if(!strcmp (name,"GenerationType")){
+                printf("Acquired GenerationType: %lld\n", value->u.integer);
+                map->generation = (int)value->u.integer;
             }
-            else if(!strcmp (name,"MaximumContent")){
-                printf("Acquired maximum: %lld\n", value->u.integer);
-                map->maximumContent = (int)value->u.integer;
-            }
+//            else if(!strcmp (name,"MinimalContent")){
+//                printf("Acquired minimal: %lld\n", value->u.integer);
+//                map->minimalContent = (int)value->u.integer;
+//            }
+//            else if(!strcmp (name,"MaximumContent")){
+//                printf("Acquired maximum: %lld\n", value->u.integer);
+//                map->maximumContent = (int)value->u.integer;
+//            }
             else
             printf("int: %10" PRId64  "\n", value->u.integer);
             
@@ -85,6 +92,8 @@ static void process_value(json_value* value, int depth, char* name)
             printf("double: %f\n", value->u.dbl);
             break;
         case json_string:
+            if(name == NULL)
+                return;
             if(!strcmp (name,"ConditionSet")){
                 printf("Acquired ConditionSet: %s\n", value->u.string.ptr);
                 map->conditionFilePath = value->u.string.ptr;
@@ -92,6 +101,10 @@ static void process_value(json_value* value, int depth, char* name)
             else if(!strcmp (name,"ContentSet")){
                 printf("Acquired ContentSet: %s\n", value->u.string.ptr);
                 map->contentPathSet = value->u.string.ptr;
+            }
+            else if (!strcmp(name,"mapName")){
+                printf("Acquired Map Name: %s\n", value->u.string.ptr);
+                map->name = value->u.string.ptr;
             }
             else printf("string: %s\n", value->u.string.ptr);
             break;
@@ -152,7 +165,6 @@ GPMap* generateMap(char*mapCorePath){
     json_value* value;
     json = (json_char*)file_contents;
     value = json_parse(json,file_size);
-    printf("here %ld\n", sizeof(value));
 
     if (value == NULL) {
         fprintf(stderr, "Unable to parse data in %s; JSON structure is probably not valid. Try dubbuging at http://jsonlint.com \n", mapCorePath);
@@ -168,15 +180,26 @@ GPMap* generateMap(char*mapCorePath){
 
 
 	// Gera Mapa
-	map->grid = malloc(sizeof(GMTile*) * map->width);
-    int i;
-    for(i = 0; i < map->width; i ++)
-        map->grid[map->width] = malloc(sizeof(GMTile) * map->height);
-
-
-
+	map->grid = (GMTile***)malloc(sizeof(GMTile**) * map->width);
+    int i, j;
+    printf("%d\n", map->width);
+    for(i = 0; i < map->height; i ++){
+        map->grid[i] = (GMTile**)malloc(sizeof(GMTile*) * map->height);
+        for(j = 0; j < map->height; j ++){
+            GMTile *tiler = malloc(sizeof(GMTile));
+            tiler->id = 0;
+            tiler->type = 1;
+            tiler->name = "name";
+            map->grid[i][j] = tiler;
+            
+        }
+        
+    }
+    
+    outputCurrentMapToStream(map);
+    
 	// Processa Mapa
-	switch(1){
+	switch(map->generation){
         case GPGenerationType_Genetic:{
             int condition = 0; // 0 ou 1 se estar atendendo todas as condições
             
@@ -211,8 +234,8 @@ GPMap* generateMap(char*mapCorePath){
 
         }
 		case GPGenerationType_Automata:
-
-		break;
+            generateAutomataMap(map);
+            break;
 		case GPGenerationType_Hybrid_Genetic:
 
 		break;
@@ -283,8 +306,8 @@ void outputCurrentMapToFile(GPMap *map, char* filename){
 
     for (i = 0; i < map->width; i++){
     	for(j = 0; j < map->height; j++){
-    		GMTile t = getTile(map, i, j);
-	        fprintf(file,"%2d ",t.id); /* write */
+    		GMTile *t = getTile(map, i, j);
+	        fprintf(file,"%2d ",t->id); /* write */
     	}
     	fprintf(file, "\n ");
     }
@@ -296,10 +319,28 @@ void outputCurrentMapToFile(GPMap *map, char* filename){
 
 }
 
+void outputCurrentMapToStream(GPMap *map){
+    int i, j;
+    
+    printf("\n-----------------------------\n     Printing Started     \n-----------------------------\n");
+    printf("Map Name: %s\nSized with width %d and height %d\n\n Printing grid \n\n", map->name, map->width, map->height);
+    
+    for (i = 0; i < map->width; i++){
+        for(j = 0; j < map->height; j++){
+            GMTile *t = getTile(map, i, j);
+            printf("%2d ",t->id); /* write */
+        }
+        printf("\n ");
+    }
+    
+    printf("\n-----------------------------\n     Printing Finished     \n-----------------------------\n");
+    
+    return;
+    
+}
 
-
-GMTile getTile (GPMap* map, int xPosition, int yPosition){
-    GMTile tile = map->grid[xPosition][yPosition];
+GMTile *getTile (GPMap *map, int xPosition, int yPosition){
+    GMTile *tile = map->grid[xPosition][yPosition];
     return tile;
 }
 
