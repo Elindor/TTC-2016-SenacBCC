@@ -36,6 +36,21 @@ static void process_content_array(json_value* value, int depth)
     length = value->u.array.length;
     printf("array\n");
     for (x = 0; x < length; x++) {
+        // Reads new array: if is tile processing, creates new tile and pushes, otherwise, creates new scatter.
+        if(generatingTile){
+            GMTileType *a = content->first;
+            GMTileType *b = malloc(sizeof(GMTileType));
+            b->next = a;
+            content->first = b;
+        }
+        else if(generatingScatter){
+            GMTileType *tile = content->first;
+            GMScatterChance *a = tile->scatter;
+            GMScatterChance *b = malloc(sizeof(GMScatterChance));
+            b->next = a;
+            tile->scatter = b;
+        }
+        
         process_content_value(value->u.array.values[x], depth, NULL);
     }
 }
@@ -202,10 +217,10 @@ GPMap* generateAutomataMap(GPMap *map){
         exit(1);
     }
     content = malloc(sizeof(GMAutomataContent));
-    GMTileType *a = malloc(sizeof(GMTileType));
-    content->first = a;
-    GMScatterChance *b = malloc(sizeof(GMScatterChance));
-    a->scatter = b;
+//    GMTileType *a = malloc(sizeof(GMTileType));
+//    content->first = a;
+//    GMScatterChance *b = malloc(sizeof(GMScatterChance));
+//    a->scatter = b;
     
     process_content_value(value, 0, NULL);
     
@@ -216,7 +231,7 @@ GPMap* generateAutomataMap(GPMap *map){
     GMTileType *c = content->first;
     //c->name = "hi!";
     
-    GMTileType *t = content->first;
+    GMTileType *t = content->first->next;
     GMScatterChance *s = content->first->scatter;
     // Gera Mapa
     printf("\n---Starting types printing---\n %s \n %d \n %s \n %d \n\n %d \n %d \n", t->name, t->id, t->imageDir, t->type, s->chance, s->id);
