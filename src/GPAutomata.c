@@ -59,6 +59,8 @@ static void process_content_value(json_value* value, int depth, char* name)
             process_content_object(value, depth+1);
             break;
         case json_array:
+            if(name == NULL)
+                return;
             if(!strcmp (name,"Tiles")){
                 generatingTile = 1;
                 process_content_array(value, depth+1);
@@ -113,17 +115,13 @@ static void process_content_value(json_value* value, int depth, char* name)
             if(!strcmp (name,"Name")){
                 GMTileType *t = content->first;
                 printf("Acquired Tile Name: %s\n", value->u.string.ptr);
-                t->name = value->u.string.ptr;
+                t->name = getCopyFromString(value->u.string.ptr);
 
             }
             else if(!strcmp (name,"ImageDir")){
                 GMTileType *t = content->first;
                 printf("Acquired Tile ImageDir: %s\n", value->u.string.ptr);
-                free(t->imageDir);
-                t->imageDir = malloc(sizeof(value->u.string.ptr + 1));
-                t->imageDir = value->u.string.ptr;
-                printf("Acquired Tile ImageDir: %s\n", t->imageDir);
-
+                t->imageDir = getCopyFromString(value->u.string.ptr);
             }
             else printf("string: %s\n", value->u.string.ptr);
             break;
@@ -215,10 +213,13 @@ GPMap* generateAutomataMap(GPMap *map){
     free(file_contents);
     
    
+    GMTileType *c = content->first;
+    //c->name = "hi!";
+    
     GMTileType *t = content->first;
     GMScatterChance *s = content->first->scatter;
     // Gera Mapa
-    printf("\n---Starting types printing---\n %s \n %d \n %s \n %d \n\n\n %d \n %d \n", t->name, t->id, t->imageDir, t->type, s->chance, s->id);
+    printf("\n---Starting types printing---\n %s \n %d \n %s \n %d \n\n %d \n %d \n", t->name, t->id, t->imageDir, t->type, s->chance, s->id);
     
     // Processa Mapa
     

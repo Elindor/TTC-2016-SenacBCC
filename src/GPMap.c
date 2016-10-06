@@ -96,15 +96,15 @@ static void process_value(json_value* value, int depth, char* name)
                 return;
             if(!strcmp (name,"ConditionSet")){
                 printf("Acquired ConditionSet: %s\n", value->u.string.ptr);
-                map->conditionFilePath = value->u.string.ptr;
+                map->conditionFilePath = getCopyFromString(value->u.string.ptr);
             }
             else if(!strcmp (name,"ContentSet")){
                 printf("Acquired ContentSet: %s\n", value->u.string.ptr);
-                map->contentPathSet = value->u.string.ptr;
+                map->contentPathSet = getCopyFromString(value->u.string.ptr);
             }
             else if (!strcmp(name,"mapName")){
                 printf("Acquired Map Name: %s\n", value->u.string.ptr);
-                map->name = value->u.string.ptr;
+                map->name = getCopyFromString(value->u.string.ptr);
             }
             else printf("string: %s\n", value->u.string.ptr);
             break;
@@ -344,6 +344,26 @@ GMTile *getTile (GPMap *map, int xPosition, int yPosition){
     return tile;
 }
 
+char* getCopyFromString(char* str){
+    char* ptr = str;
+    
+    int orig_str_size = 0;
+    char* bkup_copy = NULL;
+    
+    while (*ptr++ != '\0')
+        orig_str_size++;
+    
+    bkup_copy = (char*) malloc((orig_str_size+1) * sizeof(char));
+    bkup_copy[orig_str_size] = '\0';
+    
+    ptr = &str[0];
+    int idx = 0;
+    while (*ptr != '\0')
+        bkup_copy[idx++] = *ptr++;
+    
+    
+    return bkup_copy;
+}
 
 //GMRoom getRoom(GPMap* map, int xPosition, int yPosition){ Essa é uma TILE, vc precisa de uma estrutura auxiliar de conteudo pra buscar uma sala. Faz um array de salas comum.
 //    GMRoom room = map->grid[xPosition][yPosition];

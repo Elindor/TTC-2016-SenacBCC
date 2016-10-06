@@ -72,10 +72,13 @@ typedef struct _map{
 	GMTile ***grid;
 }GPMap;
 
+
+char* getCopyFromString(char* str);
 GPMap* generateMap(char*mapCorePath);
 int releaseMap(GPMap *map);
 void outputCurrentMapToFile(GPMap *map, char* filename);
 void outputCurrentMapToStream(GPMap *map);
 GMTile *getTile (GPMap *map, int xPosition, int yPosition);
+
 
 #endif
