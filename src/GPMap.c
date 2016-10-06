@@ -1,6 +1,12 @@
 #include "GPMap.h"
 #include "GPAutomata.h"
 
+#define rand_a 48271
+#define rand_m 2147483647
+#define rand_q (rand_m / rand_a)
+#define rand_r (rand_m % rand_a)
+
+static long int randSeed = 1;
 static GPMap *map;
 
 static void print_depth_shift(int depth)
@@ -65,7 +71,7 @@ static void process_value(json_value* value, int depth, char* name)
             if(name == NULL)
                 return;
             if(!strcmp (name,"Width")){
-                map->width = (int)value->u.integer;
+                map->width = 0 + (int)value->u.integer;
                 printf("Acquired width: %d\n", map->width);
             }
             else if(!strcmp (name,"Height")){
@@ -234,6 +240,8 @@ GPMap* generateMap(char*mapCorePath){
 
         }
 		case GPGenerationType_Automata:
+            printf("%d\n", map->width);
+
             generateAutomataMap(map);
             break;
 		case GPGenerationType_Hybrid_Genetic:
@@ -363,6 +371,16 @@ char* getCopyFromString(char* str){
     
     
     return bkup_copy;
+}
+
+int PMrand(){
+    long int hi = randSeed / rand_q;
+    long int lo = randSeed % rand_q;
+    long int test = rand_a * lo - rand_r * hi;
+    if(test > 0)
+        randSeed = test;
+    else	randSeed = test + rand_m;
+    return (int)randSeed;
 }
 
 //GMRoom getRoom(GPMap* map, int xPosition, int yPosition){ Essa é uma TILE, vc precisa de uma estrutura auxiliar de conteudo pra buscar uma sala. Faz um array de salas comum.

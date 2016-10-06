@@ -12,6 +12,8 @@ static void print_depth_shift(int depth)
 }
 
 static void process_content_value(json_value* value, int depth, char* name);
+void addTileList(GPTileList *l, GMTile* t, int x, int y);
+void spread(GMTile *tile, GMTile *nextTile);
 
 static void process_content_object(json_value* value, int depth)
 {
@@ -104,8 +106,7 @@ static void process_content_value(json_value* value, int depth, char* name)
                     printf("Acquired scatter Id: %lld\n", value->u.integer);
                     t->id = (int)value->u.integer;
                 }
-//                map->width = (int)value->u.integer;
-//                printf("Acquired width: %d\n", map->width);
+
             }
             else if(!strcmp (name,"Type")){
                 GMTileType *t = content->first;
@@ -167,7 +168,6 @@ static void process_content_value(json_value* value, int depth, char* name)
 
 
 GPMap* generateAutomataMap(GPMap *map){
-    
     // Busca Informação Básica
     char* contentFilePath = map->contentPathSet;
     FILE *contentFile;
@@ -205,12 +205,14 @@ GPMap* generateAutomataMap(GPMap *map){
     
     printf("%s\n", file_contents);
     
-    
+    printf("starting to tileA: %d %d\n", map->width, map->height);
+
     json_char* json;
     json_value* value;
     json = (json_char*)file_contents;
     value = json_parse(json,file_size);
-    
+    printf("starting to tileB: %d %d\n", map->width, map->height);
+
     if (value == NULL) {
         fprintf(stderr, "Unable to parse data in %s; JSON structure is probably not valid. Try dubbuging at http://jsonlint.com \n", contentFilePath);
         free(file_contents);
@@ -228,20 +230,166 @@ GPMap* generateAutomataMap(GPMap *map){
     free(file_contents);
     
    
-    GMTileType *c = content->first;
-    //c->name = "hi!";
-    
-    GMTileType *t = content->first->next;
-    GMScatterChance *s = content->first->scatter;
-    // Gera Mapa
-    printf("\n---Starting types printing---\n %s \n %d \n %s \n %d \n\n %d \n %d \n", t->name, t->id, t->imageDir, t->type, s->chance, s->id);
-    
+//    GMTileType *c = content->first;
+//    //c->name = "hi!";
+//    
+//    GMTileType *t = content->first->next;
+//    GMScatterChance *s = content->first->scatter;
+//    // Gera Mapa
+//    printf("\n---Starting types printing---\n %s \n %d \n %s \n %d \n\n %d \n %d \n", t->name, t->id, t->imageDir, t->type, s->chance, s->id);
+
     // Processa Mapa
+    int i, j;
+    for(i = 0; i < map->width; i ++){
+        for(j = 0; j < map->height; j ++){
+            GMTile *tiler = getTile(map, i, j);
+            tiler->token = 0;
+        }
+        
+    }
+    GMTile *startingTile = getTile(map, 20, 20);
+    printf("starting to tile\n");
+
+    startingTile->token = 1;
+
+    GPTileList *list = malloc(sizeof(GPTileList));
+    list->tile = NULL;
+    list->x = 40;
+    list->y = 40;
+    addTileList(list, startingTile, 40, 40);
+    
+    printf("starting to generate\n");
+    
+    while (list != NULL) {
+        GMTile* t = list->tile;
+        int x = list->x;
+        int y = list->y;
+
+        //start spreadding
+        if(x < map->width - 1){  // To the right
+            GMTile *temp = getTile(map, x + 1, y);
+            if(temp->token == 0){
+                spread(t, temp);
+                if(temp->token == 1) //Succeeded
+                    addTileList(list, temp, x + 1, y);
+            }
+        }
+        
+        if(y < map->height - 1){  // To below
+            GMTile *temp = getTile(map, x + 1, y);
+            if(temp->token == 0){
+                spread(t, temp);
+                if(temp->token == 1) //Succeeded
+                    addTileList(list, temp, x + 1, y);
+            }
+        }
+        
+        if(x > 0){  // To the left
+            GMTile *temp = getTile(map, x - 1, y);
+            if(temp->token == 0){
+                spread(t, temp);
+                if(temp->token == 1) //Succeeded
+                    addTileList(list, temp, x - 1, y);
+            }
+        }
+        
+        if(y > 0){  // To above
+            GMTile *temp = getTile(map, x - 1, y);
+            if(temp->token == 0){
+                spread(t, temp);
+                if(temp->token == 1) //Succeeded
+                    addTileList(list, temp, x - 1, y);
+            }
+        }
+        
+        //removes entry
+        list = list->next;
+        
+        
+    }
+    
+    
+    
     
     return map;
 }
 
+void spread(GMTile *tile, GMTile *nextTile){
+    
+    // Searches for current tile type
+    GMTileType *tileType = content->first;
+    while (tileType->id != tile->id) {
+        tileType = tileType->next;
+        if(tileType == NULL){
+            printf("Could not find content tile of Id %d when attempting to spread from tile with Id %d. Aborting.\n", tile->id, tile->id);
+            exit(0);
+        }
+    }
+    //Searches and sums scatter chances
+    GMScatterChance* scatter = tileType->scatter;
+    if(scatter == NULL){    //This tile does not spread
+        tile->token = 2;
+        return;
+    }
+    int sum = 0;
+    while (scatter->next != NULL) {
+        sum += scatter->chance;
+        scatter = scatter->next;
+    }
+    
+    scatter = tileType->scatter;    //Returns to head.
+    if (sum < 100) sum = 100;
+    int random = PMrand() % sum;    //Gets random number within possible results
+    
+    // Starting scatter attempt
+    while (scatter->next != NULL) {
+        random -= scatter->chance;
+        if(random <= 0){ // Scatter success!!
+            
+            tile->token = 2;
+            GMTileType *tileType = content->first;  // returns to head.
+            while (tileType->id != scatter->id) {   // searches for a type with same ID than spread.
+                tileType = tileType->next;
+                if(tileType == NULL){
+                    printf("Could not find content tile of Id %d when attempting to spread from tile with Id %d. Aborting.\n", scatter->id, tile->id);
+                    exit(0);
+                }
+            }
+            // Found type
+            tile->id = tileType->id;
+            tile->name = tileType->name;
+            tile->imageDir = tileType->imageDir;
+            tile->type = tileType->type;
+            tile->token = 1; // set for spreadding.
+            return; // Success
+        }
+    }
+    
+    // reached end of scatter line without result: no spread
+    tile->token = 2;
+}
 
+void addTileList(GPTileList *l, GMTile* t, int x, int y){
+    GPTileList *new = malloc(sizeof(GPTileList));
+    new->tile = t;
+    new->x = x;
+    new->y = y;
+    new->next = NULL;
+    GPTileList *temp = l;
+    
+    if(temp == NULL){
+        l = new;
+        return;
+    }
+    if(temp->tile == NULL){
+        l = new;
+        return;
+    }
+    while (l->next != NULL) {
+        l = l->next;
+    }
+    l->next = new;
+}
 
 
 

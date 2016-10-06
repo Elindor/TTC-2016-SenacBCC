@@ -27,6 +27,14 @@ typedef struct _automataContent{
     GMTileType *first;
 }GMAutomataContent;
 
+typedef struct _TileList{
+    GMTile *tile;
+    int x;
+    int y;
+    struct _TileList *next;
+}GPTileList;
+
+
 GPMap* generateAutomataMap(GPMap *map);
 
 #endif
