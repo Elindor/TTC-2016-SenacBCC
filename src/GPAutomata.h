@@ -34,6 +34,10 @@ typedef struct _TileList{
     struct _TileList *next;
 }GPTileList;
 
+typedef struct _TileListHead{
+    GPTileList *first;
+}GPTileListHead;
+
 
 GPMap* generateAutomataMap(GPMap *map);
 

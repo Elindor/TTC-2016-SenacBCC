@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <time.h>
 #include "json.h" // https://github.com/udp/json-parser
 
 

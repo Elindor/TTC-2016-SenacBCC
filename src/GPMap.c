@@ -1,5 +1,6 @@
 #include "GPMap.h"
 #include "GPAutomata.h"
+#include <time.h>
 
 #define rand_a 48271
 #define rand_m 2147483647
@@ -13,7 +14,7 @@ static void print_depth_shift(int depth)
 {
     int j;
     for (j=0; j < depth; j++) {
-        printf(" ");
+//        printf(" ");
     }
 }
 
@@ -28,7 +29,7 @@ static void process_object(json_value* value, int depth)
     length = value->u.object.length;
     for (x = 0; x < length; x++) {
         print_depth_shift(depth);
-        printf("object[%d].name = %s\n", x, value->u.object.values[x].name);
+//        printf("object[%d].name = %s\n", x, value->u.object.values[x].name);
         process_value(value->u.object.values[x].value, depth+1, value->u.object.values[x].name);
     }
 }
@@ -40,7 +41,7 @@ static void process_array(json_value* value, int depth)
         return;
     }
     length = value->u.array.length;
-    printf("array\n");
+//    printf("array\n");
     for (x = 0; x < length; x++) {
         process_value(value->u.array.values[x], depth, NULL);
     }
@@ -50,7 +51,7 @@ static void process_value(json_value* value, int depth, char* name)
 {
 //    int j;
     if (value == NULL) {
-        printf("NULL value\n");
+//        printf("NULL value\n");
         return;
     }
     if (value->type != json_object) {
@@ -59,7 +60,7 @@ static void process_value(json_value* value, int depth, char* name)
     
     switch (value->type) {
         case json_none:
-            printf("none\n");
+//            printf("none\n");
             break;
         case json_object:
             process_object(value, depth+1);
@@ -72,14 +73,14 @@ static void process_value(json_value* value, int depth, char* name)
                 return;
             if(!strcmp (name,"Width")){
                 map->width = 0 + (int)value->u.integer;
-                printf("Acquired width: %d\n", map->width);
+//                printf("Acquired width: %d\n", map->width);
             }
             else if(!strcmp (name,"Height")){
-                printf("Acquired height: %lld\n", value->u.integer);
+//                printf("Acquired height: %lld\n", value->u.integer);
                 map->height = (int)value->u.integer;
             }
             else if(!strcmp (name,"GenerationType")){
-                printf("Acquired GenerationType: %lld\n", value->u.integer);
+//                printf("Acquired GenerationType: %lld\n", value->u.integer);
                 map->generation = (int)value->u.integer;
             }
 //            else if(!strcmp (name,"MinimalContent")){
@@ -90,32 +91,32 @@ static void process_value(json_value* value, int depth, char* name)
 //                printf("Acquired maximum: %lld\n", value->u.integer);
 //                map->maximumContent = (int)value->u.integer;
 //            }
-            else
-            printf("int: %10" PRId64  "\n", value->u.integer);
+//            else
+//            printf("int: %10" PRId64  "\n", value->u.integer);
             
             break;
         case json_double:
-            printf("double: %f\n", value->u.dbl);
+//            printf("double: %f\n", value->u.dbl);
             break;
         case json_string:
             if(name == NULL)
                 return;
             if(!strcmp (name,"ConditionSet")){
-                printf("Acquired ConditionSet: %s\n", value->u.string.ptr);
+//                printf("Acquired ConditionSet: %s\n", value->u.string.ptr);
                 map->conditionFilePath = getCopyFromString(value->u.string.ptr);
             }
             else if(!strcmp (name,"ContentSet")){
-                printf("Acquired ContentSet: %s\n", value->u.string.ptr);
+//                printf("Acquired ContentSet: %s\n", value->u.string.ptr);
                 map->contentPathSet = getCopyFromString(value->u.string.ptr);
             }
             else if (!strcmp(name,"mapName")){
-                printf("Acquired Map Name: %s\n", value->u.string.ptr);
+//                printf("Acquired Map Name: %s\n", value->u.string.ptr);
                 map->name = getCopyFromString(value->u.string.ptr);
             }
-            else printf("string: %s\n", value->u.string.ptr);
+//            else printf("string: %s\n", value->u.string.ptr);
             break;
         case json_boolean:
-            printf("bool: %d\n", value->u.boolean);
+//            printf("bool: %d\n", value->u.boolean);
             break;
         default:
             break;
@@ -127,7 +128,10 @@ enum GPGeneration_Type {GPGenerationType_Automata = 0, GPGenerationType_Genetic,
 
 GPMap* generateMap(char*mapCorePath){
 
-	map = malloc(sizeof(map));
+    
+    srand (time(NULL));
+
+	map = malloc(sizeof(GPMap));
 
 	// Busca Informação Básica
 
@@ -161,10 +165,10 @@ GPMap* generateMap(char*mapCorePath){
         free(file_contents);
         return NULL;
     }
-    fclose(NULL);
+    fclose(coreFile);
     
     
-    printf("%s\n", file_contents);
+//    printf("%s\n", file_contents);
 
     
     json_char* json;
@@ -188,7 +192,7 @@ GPMap* generateMap(char*mapCorePath){
 	// Gera Mapa
 	map->grid = (GMTile***)malloc(sizeof(GMTile**) * map->width);
     int i, j;
-    printf("%d\n", map->width);
+//    printf("%d\n", map->width);
     for(i = 0; i < map->height; i ++){
         map->grid[i] = (GMTile**)malloc(sizeof(GMTile*) * map->height);
         for(j = 0; j < map->height; j ++){
@@ -202,7 +206,6 @@ GPMap* generateMap(char*mapCorePath){
         
     }
     
-    outputCurrentMapToStream(map);
     
 	// Processa Mapa
 	switch(map->generation){
@@ -240,7 +243,6 @@ GPMap* generateMap(char*mapCorePath){
 
         }
 		case GPGenerationType_Automata:
-            printf("%d\n", map->width);
 
             generateAutomataMap(map);
             break;
@@ -252,6 +254,9 @@ GPMap* generateMap(char*mapCorePath){
 		break;
 
 	}
+    
+    //outputCurrentMapToStream(map);
+
     
     return map;
 }
@@ -334,11 +339,13 @@ void outputCurrentMapToStream(GPMap *map){
     printf("Map Name: %s\nSized with width %d and height %d\n\n Printing grid \n\n", map->name, map->width, map->height);
     
     for (i = 0; i < map->width; i++){
+        printf("{");
+
         for(j = 0; j < map->height; j++){
             GMTile *t = getTile(map, i, j);
-            printf("%2d ",t->id); /* write */
+            printf("%2d, ",t->id); /* write */
         }
-        printf("\n ");
+        printf("},\n ");
     }
     
     printf("\n-----------------------------\n     Printing Finished     \n-----------------------------\n");
@@ -375,7 +382,7 @@ char* getCopyFromString(char* str){
 
 int PMrand(){
     long int hi = randSeed / rand_q;
-    long int lo = randSeed % rand_q;
+    long int lo = (randSeed * rand()) % rand_q;
     long int test = rand_a * lo - rand_r * hi;
     if(test > 0)
         randSeed = test;

@@ -2,18 +2,24 @@
 GMAutomataContent *content;
 int generatingTile;
 int generatingScatter;
+GPTileListHead *tileList;
+//int order[4] = {0, 2, 3, 1};
+//int order[5] = {1, 3, 2, 0, 0};
+int order[4] = {-1, 0, 0, 0};
+int scount = 0;
 
 static void print_depth_shift(int depth)
 {
     int j;
     for (j=0; j < depth; j++) {
-        printf(" ");
+//        printf(" ");
     }
 }
 
 static void process_content_value(json_value* value, int depth, char* name);
-void addTileList(GPTileList *l, GMTile* t, int x, int y);
+void addTileList(GMTile* t, int x, int y);
 void spread(GMTile *tile, GMTile *nextTile);
+void printList(GPTileList *node);
 
 static void process_content_object(json_value* value, int depth)
 {
@@ -24,7 +30,7 @@ static void process_content_object(json_value* value, int depth)
     length = value->u.object.length;
     for (x = 0; x < length; x++) {
         print_depth_shift(depth);
-        printf("object[%d].name = %s\n", x, value->u.object.values[x].name);
+        //printf("object[%d].name = %s\n", x, value->u.object.values[x].name);
         process_content_value(value->u.object.values[x].value, depth+1, value->u.object.values[x].name);
     }
 }
@@ -36,7 +42,7 @@ static void process_content_array(json_value* value, int depth)
         return;
     }
     length = value->u.array.length;
-    printf("array\n");
+//    printf("array\n");
     for (x = 0; x < length; x++) {
         // Reads new array: if is tile processing, creates new tile and pushes, otherwise, creates new scatter.
         if(generatingTile){
@@ -61,7 +67,7 @@ static void process_content_value(json_value* value, int depth, char* name)
 {
     //    int j;
     if (value == NULL) {
-        printf("NULL value\n");
+//        printf("NULL value\n");
         return;
     }
     if (value->type != json_object) {
@@ -70,7 +76,7 @@ static void process_content_value(json_value* value, int depth, char* name)
     
     switch (value->type) {
         case json_none:
-            printf("none\n");
+//            printf("none\n");
             break;
         case json_object:
             process_content_object(value, depth+1);
@@ -98,51 +104,51 @@ static void process_content_value(json_value* value, int depth, char* name)
             if(!strcmp (name,"Id")){
                 if(generatingTile){
                     GMTileType *t = content->first;
-                    printf("Acquired tile Id: %lld\n", value->u.integer);
+//                    printf("Acquired tile Id: %lld\n", value->u.integer);
                     t->id = (int)value->u.integer;
                 }
                 if(generatingScatter){
                     GMScatterChance *t = content->first->scatter;
-                    printf("Acquired scatter Id: %lld\n", value->u.integer);
+//                    printf("Acquired scatter Id: %lld\n", value->u.integer);
                     t->id = (int)value->u.integer;
                 }
 
             }
             else if(!strcmp (name,"Type")){
                 GMTileType *t = content->first;
-                printf("Acquired tile wall type: %lld\n", value->u.integer);
+//                printf("Acquired tile wall type: %lld\n", value->u.integer);
                 t->type = (int)value->u.integer;
             }
             else if(!strcmp (name,"Chance")){
                 GMScatterChance *t = content->first->scatter;
-                printf("Acquired scatter chance: %lld\n", value->u.integer);
+//                printf("Acquired scatter chance: %lld\n", value->u.integer);
                 t->chance = (int)value->u.integer;
             }
-            else
-                printf("int: %10" PRId64  "\n", value->u.integer);
+//            else
+//                printf("int: %10" PRId64  "\n", value->u.integer);
             
             break;
         case json_double:
-            printf("double: %f\n", value->u.dbl);
+//            printf("double: %f\n", value->u.dbl);
             break;
         case json_string:
             if(name == NULL)
                 return;
             if(!strcmp (name,"Name")){
                 GMTileType *t = content->first;
-                printf("Acquired Tile Name: %s\n", value->u.string.ptr);
+//                printf("Acquired Tile Name: %s\n", value->u.string.ptr);
                 t->name = getCopyFromString(value->u.string.ptr);
 
             }
             else if(!strcmp (name,"ImageDir")){
                 GMTileType *t = content->first;
-                printf("Acquired Tile ImageDir: %s\n", value->u.string.ptr);
+//                printf("Acquired Tile ImageDir: %s\n", value->u.string.ptr);
                 t->imageDir = getCopyFromString(value->u.string.ptr);
             }
-            else printf("string: %s\n", value->u.string.ptr);
+//            else printf("string: %s\n", value->u.string.ptr);
             break;
         case json_boolean:
-            printf("bool: %d\n", value->u.boolean);
+//            printf("bool: %d\n", value->u.boolean);
             break;
         default:
             break;
@@ -168,6 +174,7 @@ static void process_content_value(json_value* value, int depth, char* name)
 
 
 GPMap* generateAutomataMap(GPMap *map){
+    scount = 0;
     // Busca Informação Básica
     char* contentFilePath = map->contentPathSet;
     FILE *contentFile;
@@ -200,18 +207,15 @@ GPMap* generateAutomataMap(GPMap *map){
         free(file_contents);
         return NULL;
     }
-    fclose(NULL);
+    fclose(contentFile);
     
     
-    printf("%s\n", file_contents);
+//    printf("%s\n", file_contents);
     
-    printf("starting to tileA: %d %d\n", map->width, map->height);
-
     json_char* json;
     json_value* value;
     json = (json_char*)file_contents;
     value = json_parse(json,file_size);
-    printf("starting to tileB: %d %d\n", map->width, map->height);
 
     if (value == NULL) {
         fprintf(stderr, "Unable to parse data in %s; JSON structure is probably not valid. Try dubbuging at http://jsonlint.com \n", contentFilePath);
@@ -248,39 +252,49 @@ GPMap* generateAutomataMap(GPMap *map){
         
     }
     GMTile *startingTile = getTile(map, 20, 20);
-    printf("starting to tile\n");
+    startingTile->id = 1;
+//    printf("starting to tile\n");
 
     startingTile->token = 1;
 
-    GPTileList *list = malloc(sizeof(GPTileList));
-    list->tile = NULL;
-    list->x = 40;
-    list->y = 40;
-    addTileList(list, startingTile, 40, 40);
-    
-    printf("starting to generate\n");
-    
-    while (list != NULL) {
-        GMTile* t = list->tile;
-        int x = list->x;
-        int y = list->y;
+    tileList = malloc(sizeof(GPTileListHead));
+    tileList->first = NULL;
 
+    addTileList(startingTile, 80, 80);
+    
+//    printf("starting to generate %d\n", tileList->first->x);
+    
+    while (tileList->first != NULL) {
+
+        GMTile* t = tileList->first->tile;
+        int x = tileList->first->x;
+        int y = tileList->first->y;
+        
+//        printf("Removing 1st item %d from list: ", t->id);
+        printList(tileList->first);
+        
+        //removes entry
+        tileList->first = tileList->first->next;
+        
+
+//        printf("generating tile at indexes %d %d\n", x, y);
+        
         //start spreadding
         if(x < map->width - 1){  // To the right
             GMTile *temp = getTile(map, x + 1, y);
             if(temp->token == 0){
                 spread(t, temp);
                 if(temp->token == 1) //Succeeded
-                    addTileList(list, temp, x + 1, y);
+                    addTileList(temp, x + 1, y);
             }
         }
         
         if(y < map->height - 1){  // To below
-            GMTile *temp = getTile(map, x + 1, y);
+            GMTile *temp = getTile(map, x, y + 1);
             if(temp->token == 0){
                 spread(t, temp);
                 if(temp->token == 1) //Succeeded
-                    addTileList(list, temp, x + 1, y);
+                    addTileList(temp, x, y + 1);
             }
         }
         
@@ -289,106 +303,195 @@ GPMap* generateAutomataMap(GPMap *map){
             if(temp->token == 0){
                 spread(t, temp);
                 if(temp->token == 1) //Succeeded
-                    addTileList(list, temp, x - 1, y);
+                    addTileList(temp, x - 1, y);
             }
         }
         
         if(y > 0){  // To above
-            GMTile *temp = getTile(map, x - 1, y);
+            GMTile *temp = getTile(map, x, y - 1);
             if(temp->token == 0){
                 spread(t, temp);
                 if(temp->token == 1) //Succeeded
-                    addTileList(list, temp, x - 1, y);
+                    addTileList(temp, x, y - 1);
             }
         }
         
-        //removes entry
-        list = list->next;
+        
         
         
     }
     
-    
+    map->generation = scount;
     
     
     return map;
 }
 
 void spread(GMTile *tile, GMTile *nextTile){
-    
+    scount++;
     // Searches for current tile type
     GMTileType *tileType = content->first;
     while (tileType->id != tile->id) {
         tileType = tileType->next;
         if(tileType == NULL){
-            printf("Could not find content tile of Id %d when attempting to spread from tile with Id %d. Aborting.\n", tile->id, tile->id);
+//            printf("Could not find content tile of Id %d when attempting to spread from tile with Id %d. Aborting.\n", tile->id, tile->id);
             exit(0);
         }
     }
+
     //Searches and sums scatter chances
     GMScatterChance* scatter = tileType->scatter;
     if(scatter == NULL){    //This tile does not spread
         tile->token = 2;
         return;
     }
+
     int sum = 0;
     while (scatter->next != NULL) {
         sum += scatter->chance;
         scatter = scatter->next;
     }
-    
+
     scatter = tileType->scatter;    //Returns to head.
     if (sum < 100) sum = 100;
     int random = PMrand() % sum;    //Gets random number within possible results
-    
     // Starting scatter attempt
-    while (scatter->next != NULL) {
+    while (scatter != NULL) {
+        if(tile->id == 2)
+            printf("");
         random -= scatter->chance;
         if(random <= 0){ // Scatter success!!
-            
             tile->token = 2;
             GMTileType *tileType = content->first;  // returns to head.
             while (tileType->id != scatter->id) {   // searches for a type with same ID than spread.
                 tileType = tileType->next;
                 if(tileType == NULL){
-                    printf("Could not find content tile of Id %d when attempting to spread from tile with Id %d. Aborting.\n", scatter->id, tile->id);
+//                    printf("Could not find content tile of Id %d when attempting to spread from tile with Id %d. Aborting.\n", scatter->id, tile->id);
                     exit(0);
                 }
             }
             // Found type
-            tile->id = tileType->id;
-            tile->name = tileType->name;
-            tile->imageDir = tileType->imageDir;
-            tile->type = tileType->type;
-            tile->token = 1; // set for spreadding.
+            nextTile->id = tileType->id;
+//            printf("tile of Id %d spawned from tile of Id %d\n", nextTile->id, tile->id);
+
+            nextTile->name = tileType->name;
+            nextTile->imageDir = tileType->imageDir;
+            nextTile->type = tileType->type;
+            nextTile->token = 1; // set for spreadding.
             return; // Success
         }
+        scatter = scatter->next;
     }
     
     // reached end of scatter line without result: no spread
     tile->token = 2;
 }
 
-void addTileList(GPTileList *l, GMTile* t, int x, int y){
+void addTileList(GMTile* t, int x, int y){
     GPTileList *new = malloc(sizeof(GPTileList));
     new->tile = t;
     new->x = x;
     new->y = y;
     new->next = NULL;
-    GPTileList *temp = l;
+    GPTileList *temp = tileList->first;
     
     if(temp == NULL){
-        l = new;
+        tileList->first = new;
         return;
     }
     if(temp->tile == NULL){
-        l = new;
+        tileList->first = new;
         return;
     }
-    while (l->next != NULL) {
-        l = l->next;
+    
+    if(order[0] != -1){
+//        
+//        printf("\n\n spawning %d\n", new->tile->id);
+
+        
+        int tokenIndex = 0;
+        int found = 0;
+        int tokenOrder = order[tokenIndex];
+        
+        
+        for(; tileList->first->tile->id != new->tile->id && tileList->first->tile->id != tokenOrder; tokenIndex++){
+            tokenOrder = order[tokenIndex];
+            if(new->tile->id == tokenOrder){
+                new->next = tileList->first;
+                tileList->first = new;
+                
+                printList(tileList->first);
+//                printf("\n\n first %d\n", new->tile->id);
+
+                return;
+            }
+        }
+        tokenIndex = 0;
+        tokenOrder = order[tokenIndex];
+        
+        while (temp->next != NULL) {
+//            printf("looping %d %d\n", found, tokenIndex);
+
+            if(new->tile->id != tokenOrder && found == 0){
+
+                if(temp->tile->id == temp->next->tile->id || temp->next->tile->id == tokenOrder){
+                    temp = temp->next;
+                }
+                else{
+//                    temp = temp->next;
+                    while (tokenOrder != temp->next->tile->id && tokenOrder != new->tile->id) {
+                        tokenIndex++;
+                        tokenOrder = order[tokenIndex];
+                        if(tokenOrder == 0)
+                            //printf("FAIL ILLPALAZZO\n");
+                        if(tokenOrder == new->tile->id)
+                            found = 1;
+//                        else
+//                            temp = temp->next;
+                    }
+                }
+            }
+            else{
+
+//                found = 1;
+                if(temp->tile->id != temp->next->tile->id){
+//                    temp = temp->next;
+                    new->next = temp->next;
+                    temp->next = new;
+//                    printf("temp:  %d  new:  %d\n", temp->tile->id, new->tile->id);
+                    printList(tileList->first);
+                    return;
+
+                }
+                else{
+                    temp = temp->next;
+                }
+            }
+            
+        }
+//        printf("added to tail: %d, List:", new->tile->id);
+        printList(tileList->first);
+
+        temp->next = new;
     }
-    l->next = new;
+    else{
+        while (temp->next != NULL) {
+            temp = temp->next;
+        }
+        temp->next = new;
+    }
+    
+}
+
+void printList(GPTileList *node)
+{
+    return;
+    while (node != NULL)
+    {
+        printf("%d  ", node->tile->id);
+        node = node->next;
+    }
+    printf("\n");
 }
 
 
