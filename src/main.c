@@ -11,6 +11,16 @@
 
 int main(int argc, const char * argv[]) {
     // insert code here...
-    generateMap("core.json");
+    double time_spent = 0;
+    clock_t start = clock();
+    srand (time(NULL));
+    printf("Starting to generate\n");
+
+    generateMap("C:/Users/Denis/Downloads/TTC-2016-SenacBCC-master/TTC-2016-SenacBCC-master/core.json");
+
+    clock_t end = clock();
+    time_spent += (double)(end - start) / CLOCKS_PER_SEC;
+
+
     return 0;
 }

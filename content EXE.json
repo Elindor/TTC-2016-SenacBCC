@@ -1,0 +1,244 @@
+{
+	"Tiles": [{
+		"Name": "water",
+		"Id": 0,
+		"ImageDir": "img/water.png",
+		"Type": 1,
+		"ScatterRules": null
+	}, {
+		"Name": "grass",
+		"Id": 1,
+		"ImageDir": "img/grass.png",
+		"Type": 0,
+		"ScatterRules": [{
+			"Chance": 30,
+			"Id": 2
+		}, {
+			"Chance": 70,
+			"Id": 1
+		}]
+	}, {
+		"Name": "sand",
+		"Id": 2,
+		"ImageDir": "img/sand.png",
+		"Type": 0,
+		"ScatterRules": [{
+			"Chance": 5,
+			"Id": 1
+		}, {
+			"Chance": 30,
+			"Id": 2
+		}]
+	}],
+	"Rooms": [{
+		"Name": "Norte",
+		"Id": 1,
+		"Tam": 1,
+		"Width": 3,
+		"Height": 3,
+		"Chance": 10,
+	
+		"Gene": "N",
+		"Doors": [{
+			"Id": 1,
+			"Width": 1,
+			"Height": 0,
+			"Gene": "N"
+		}]
+	}, {
+		"Name": "Sul",
+		"Id": 2,
+		"Tam": 1,
+		"Width": 3,
+		"Height": 3,
+		"Chance": 10,
+
+		"Gene": "S",
+		"Doors": [{
+			"Id": 1,
+			"Width": 1,
+			"Height": 2,
+			"Gene": "S"
+		}]
+	}, {
+		"Name": "Leste",
+		"Id": 3,
+		"Tam": 1,
+		"Width": 3,
+		"Height": 3,
+		"Chance": 10,
+	
+		"Gene": "l",
+		"Doors": [{
+			"Id": 1,
+			"Width": 2,
+			"Height": 1,
+			"Gene": "L"
+		}]
+	}, {
+		"Name": "Leste",
+		"Id": 4,
+		"Tam": 1,
+		"Width": 3,
+		"Height": 3,
+		"Chance": 10,
+	
+		"Gene": "O",
+		"Doors": [{
+			"Id": 1,
+			"Width": 0,
+			"Height": 1,
+			"Gene": "O"
+		}]
+	}, {
+		"Name": "Norte-SUl",
+		"Id": 5,
+		"Tam": 1,
+		"Width": 3,
+		"Height": 3,
+		"Chance": 20,
+
+		"Gene": "NS",
+		"Doors": [{
+			"Id": 1,
+			"Width": 1,
+			"Height": 0,
+			"Gene": "N"
+		}, {
+			"Id": 2,
+			"Width": 1,
+			"Height": 2,
+			"Gene": "S"
+		}]
+	}, {
+		"Name": "Leste-Oeste",
+		"Id": 6,
+		"Tam": 1,
+		"Width": 3,
+		"Height": 3,
+		"Chance": 20,
+
+		"Gene": "LO",
+		"Doors": [{
+			"Id": 1,
+			"Width": 2,
+			"Height": 1,
+			"Gene": "L"
+		}, {
+			"Id": 2,
+			"Width": 0,
+			"Height": 1,
+			"Gene": "O"
+		}]
+	}, {
+		"Name": "Norte-Oeste",
+		"Id": 7,
+		"Tam": 1,
+		"Width": 3,
+		"Height": 3,
+		"Chance": 20,
+		
+		"Gene": "NO",
+		"Doors": [{
+			"Id": 1,
+			"Width": 1,
+			"Height": 0,
+			"Gene": "N"
+		}, {
+			"Id": 2,
+			"Width": 0,
+			"Height": 1,
+			"Gene": "O"
+		}]
+	}, {
+		"Name": "Norte-Leste",
+		"Id": 8,
+		"Tam": 1,
+		"Width": 3,
+		"Height": 3,
+		"Chance": 20,
+		
+		"Gene": "NL",
+		"Doors": [{
+			"Id": 1,
+			"Width": 1,
+			"Height": 0,
+			"Gene": "N"
+		}, {
+			"Id": 2,
+			"Width": 2,
+			"Height": 1,
+			"Gene": "L"
+		}]
+	}, {
+		"Name": "Sul-Oeste",
+		"Id": 9,
+		"Tam": 1,
+		"Width": 3,
+		"Height": 3,
+		"Chance": 20,
+		
+		"Gene": "SO",
+		"Doors": [{
+			"Id": 1,
+			"Width": 1,
+			"Height": 0,
+			"Gene": "N"
+		}, {
+			"Id": 1,
+			"Width": 0,
+			"Height": 1,
+			"Gene": "O"
+		}]
+	}, {
+		"Name": "SUl-leste",
+		"Id": 10,
+		"Tam": 1,
+		"Width": 3,
+		"Height": 3,
+		"Chance": 20,
+
+		"Gene": "LS",
+		"Doors": [{
+			"Id": 1,
+			"Width": 2,
+			"Height": 1,
+			"Gene": "L"
+		}, {
+			"Id": 2,
+			"Width": 1,
+			"Height": 2,
+			"Gene": "S"
+		}]
+	}, {
+		"Name": "Trevo",
+		"Id": 11,
+		"Tam": 1,
+		"Width": 3,
+		"Height": 3,
+		"Chance": 35,
+
+		"Gene": "NOLS",
+		"Doors": [{
+			"Id": 1,
+			"Width": 2,
+			"Height": 1,
+			"Gene": "L"
+		}, {
+			"Id": 2,
+			"Width": 1,
+			"Height": 2,
+			"Gene": "S"
+		}, {
+			"Id": 3,
+			"Width": 1,
+			"Height": 0,
+			"Gene": "N"
+		}, {
+			"Id": 4,
+			"Width": 0,
+			"Height": 1,
+			"Gene": "O"
+		}]
+	}]
+}

@@ -1,8 +1,15 @@
+#ifndef GPMapBlock
+#define GPMapBlock
+
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <time.h>
 #include "json.h" // https://github.com/udp/json-parser
+
+
 
 
 
@@ -17,43 +24,15 @@ typedef struct _tile{
 	char *name;
 	char *imageDir;
 	int type;
+    int token;
 }GMTile;
 
-typedef struct _door{
-	int idRoomX;
-	int idRoomY;
-	int idDoor;
-	char gene;
-	int idNextRoom;
-	int idNextdoor;
-}GMDoor;
-
-typedef struct _crossover{
-
-	int id; // não necessita dos dois
-	char *genes;
-	int chance; // na incompatibilidade é ignorado
-
-
-}crossover;
-
-typedef struct _room{
+typedef struct _Sroom{
 	int id;
-	char *name;
-	int height;
-	int width;
-	int chance;
-	GMTile **mapIntern;
-	char *gene;	// N L S O
-
-
-	int Quantdoors;
-	GMDoor *doors;
-	//compatibilidade
-	crossover *incompative;
-	crossover *compativeExit;
-	crossover *incompativeEntrad;
-}GMRoom;
+	int pointX;
+	int pointY;
+	struct _Sroom *next;
+}GMSRoom;
 
 typedef struct _map{
 	char *name;
@@ -64,12 +43,20 @@ typedef struct _map{
 	int width;
     int maximumContent;
     int minimalContent;
-	GMTile **grid;
+    int generation;
+	GMTile ***grid;
 }GPMap;
 
+#include "GPAutomata.h"
+#include "GPMap_Genetic.h"
+
+
+char* getCopyFromString(char* str);
 GPMap* generateMap(char*mapCorePath);
-int releaseMap(GPMap *map);
-void outputCurrentMapToFile(GPMap *map, char* filename);
-GMTile getTile (GPMap* map, int xPosition, int yPosition);
+int releaseMap(GPMap  *map);
+void outputCurrentMapToFile(GPMap  *map, char* filename);
+void outputCurrentMapToStream(GPMap  *map);
+GMTile *getTile (GPMap *map, int xPosition, int yPosition);
+int PMrand ();
 
-
+#endif

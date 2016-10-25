@@ -1,0 +1,10 @@
+{
+	"mapName": "Hello Word",
+	"GenerationType": 1,
+	"Width": 8,
+	"Height": 8,
+	"MinimalContent": 31,
+	"MaximumContent": 63,
+	"ConditionSet": "C:/Users/Denis/Downloads/TTC-2016-SenacBCC-master/TTC-2016-SenacBCC-master/condition.json",
+	"ContentSet": "C:/Users/Denis/Downloads/TTC-2016-SenacBCC-master/content EXE.json"
+}
