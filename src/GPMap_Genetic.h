@@ -121,7 +121,7 @@ void discartmap(GPGenetic_Map *mapa);
 GmPonto seachNextRoom(GPGenetic_Map *mapa,GmPonto ponto);
 int Sort_Rooom(GGnode *head);
 int ocuppedspace(GPGenetic_Map *mapa);
-int varremapapor(GPGenetic_Map *mapa, int *x, int *y);
+GmPonto varremapapor(GPGenetic_Map *mapa, GmPonto ponto);
 GmPonto selectdoor(GMRoom *atual,int x, int y);
 
 GMRoom *getRoom (GPGenetic_Map *map, int xPosition, int yPosition);

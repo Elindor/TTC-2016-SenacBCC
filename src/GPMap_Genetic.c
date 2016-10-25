@@ -595,8 +595,8 @@ GPMap* generateGeneticMap(GPMap *mapa){
 			con = ocuppedspace(map);
 
 			if(con == 2){
-                con = varremapapor(map,&x,&y);
-                if( con == 1){
+                g = varremapapor(map,g);
+                if( g.x != -1){
                     tentativas++;
                     if(tentativas < 5){
                         printf("Vou descartar");
@@ -616,8 +616,8 @@ GPMap* generateGeneticMap(GPMap *mapa){
 			g = seachNextRoom(map, g); //Encontra a proxima sala que se pode continuar a geraççao de portas --- arrumar uma maneira de identificar sala de 2 portas
 
 			if(g.x == -1){
-				con = varremapapor(map,&x,&y);//função muito ruim
-                if(con == 0){
+				g = varremapapor(map,g);//função muito ruim
+                if(g.x == -1){
                     con = ocuppedspace(map);
                 }
 			}
@@ -717,25 +717,26 @@ GmPonto seachNextRoom(GPGenetic_Map *mapa, GmPonto ponto){
 	return ponto;
 }
 
-int varremapapor(GPGenetic_Map *mapa, int *x, int *y){
+GmPonto varremapapor(GPGenetic_Map *mapa, GmPonto ponto){
     int i, j;
 
     for (i = 0; i < mapa->height; i++){
         for (j = 0; j < mapa->width; j++){
             if(mapa->grid[i][j]->alldoorsocupped != 1){
-                x = i;
-				y = j;
+                ponto.x = i;
+				ponto.y = j;
 				printf("Econtrada sala com portas para conectar\n");
-				return 1;
+				return ponto;
 			}
 		}
 	}
 
-
+    ponto.x = -1;
+    ponto.y = -1;
 
 
 	printf("Nenhuma sala aberta encontrada!\n");
-    return 0;
+    return ponto;
 }
 
 void discartmap(GPGenetic_Map *mapa){
@@ -912,7 +913,7 @@ GGnode* deleteid(int key, GGnode *head){
          //store reference to current link
          previous = curren;
          //move to next link
-         curren = curren->sala->next;
+         curren->sala = curren->sala->next;
       }
 
    }
@@ -920,7 +921,7 @@ GGnode* deleteid(int key, GGnode *head){
    //found a match, update the link
    if(curren == head) {
       //change first to point to next link
-      curren = head->sala->next;
+      curren->sala = head->sala->next;
    }else {
       //bypass the current link
       previous->sala->next = curren->sala->next;
@@ -1023,8 +1024,8 @@ GGnode*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GGnode *head){
             curren = DeleteAllG("L", curren);
 
 		tx = x + 1;
-		test = mapa->height;
-		if(tx > test);
+		test= mapa->height;
+		if(tx>test)
             curren = DeleteAllG("O", curren);
 
 		ty = y - 1;
@@ -1056,7 +1057,7 @@ GGnode*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GGnode *head){
         if(test != 0){
             pch = strspn("S", mapa->grid[x][y-1]->gene);
             if(pch > 0)
-                curren = DeleteOffG("N", &curren);
+                curren = DeleteOffG("N", curren);
         }
 
         test = mapa->grid[x][y+1]->id;
@@ -1132,7 +1133,7 @@ GGnode* DeleteOffG(char *key, GGnode *head){ // delete intances in case not enco
    for(b = head->sala; b != NULL; b = b->next)
    {
        int pch = strspn(key, b->gene);
-       if(pch == NULL){
+       if(pch > 0){
     		curren = deleteid(b->id, curren);
       }
    }
