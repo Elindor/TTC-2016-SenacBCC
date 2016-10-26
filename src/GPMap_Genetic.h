@@ -113,7 +113,7 @@ GGnode* SeachIncopatibilityExit(GMRoom *atual, GGnode *head);
 GGnode* DeleteEG(char *key, GGnode *head);
 GGnode* DeleteAllG(char *key, GGnode *head);
 GGnode* DeleteOffG(char *key, GGnode *head);
-GGnode*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GGnode *head);
+GGnode*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto, GGnode *head);
 
 void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto);
 void discartmap(GPGenetic_Map *mapa);

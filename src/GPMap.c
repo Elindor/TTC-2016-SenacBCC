@@ -122,11 +122,12 @@ static void process_value(json_value* value, int depth, char* name)
 }
 
 
+
 enum GPGeneration_Type {GPGenerationType_Automata = 0, GPGenerationType_Genetic, GPGenerationType_Hybrid_Genetic, GPGenerationType_Hybrid_Automata};
 
 GPMap* generateMap(char*mapCorePath){
 
-	map = malloc(sizeof(map));
+	map = malloc(sizeof(GPMap));
 
 	// Busca Informação Básica
 
@@ -147,20 +148,24 @@ GPMap* generateMap(char*mapCorePath){
     }
 
 
-    coreFile = fopen(mapCorePath, "rt");
+    coreFile = fopen(mapCorePath, "rb");
     if (coreFile == NULL) {
         fprintf(stderr, "Unable to open %s\n", mapCorePath);
         fclose(coreFile);
         free(file_contents);
         return NULL;
     }
-    if ( fread(file_contents, file_size, 1, coreFile) != 0 ) {
+    if ( fread(file_contents, file_size, 1, coreFile) != 1 ) {
+                if (feof(coreFile)) {
+                  puts ("End-of-File reached.");
+                  printf ("Total number of bytes read: %d\n",file_size);
+                }
         fprintf(stderr, "Unable to read content of %s\n", mapCorePath);
         fclose(coreFile);
         free(file_contents);
         return NULL;
     }
-    fclose(NULL);
+    fclose(coreFile);
 
 
     printf("%s\n", file_contents);
