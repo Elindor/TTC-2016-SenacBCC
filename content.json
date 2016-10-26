@@ -11,10 +11,10 @@
 		"ImageDir": "img/grass.png",
 		"Type": 0,
 		"ScatterRules": [{
-			"Chance": 30,
+			"Chance": 40,
 			"Id": 2
 		}, {
-			"Chance": 70,
+			"Chance": 60,
 			"Id": 1
 		}]
 	}, {
@@ -23,11 +23,14 @@
 		"ImageDir": "img/sand.png",
 		"Type": 0,
 		"ScatterRules": [{
-			"Chance": 5,
+			"Chance": 2,
 			"Id": 1
 		}, {
-			"Chance": 30,
+			"Chance": 28,
 			"Id": 2
+		},{
+			"Chance": 70,
+			"Id": 0
 		}]
 	}]
 }
