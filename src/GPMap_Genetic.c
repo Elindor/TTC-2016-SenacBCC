@@ -67,12 +67,22 @@ static void process_genetic_content_array(json_value* value, int depth)
             if(content->first == NULL){
                 GMRoom *a = malloc(sizeof(GMRoom));
                 a->next = NULL;
+                a->doors = NULL;
+                a->gene = NULL;
+                a->compativeExit = NULL;
+                a->incompativeEntrad = NULL;
+                a->incompative = NULL;
                 content->first = a;
             }
             else{
                 GMRoom *a = content->first;
                 GMRoom *b = malloc(sizeof(GMRoom));
                 b->next = a;
+                b->doors = NULL;
+                b->gene = NULL;
+                b->compativeExit = NULL;
+                b->incompativeEntrad = NULL;
+                b->incompative = NULL;
                 content->first = b;
             }
         }
@@ -653,7 +663,7 @@ GPMap* generateGeneticMap(GPMap *mapa){
 
 		}else{
 			printf("Not found void next door.");
-			int con;
+			int con = -1;
 			map->grid[x][y]->alldoorsocupped = 1;
 			g = seachNextRoom(map, g); //Encontra a proxima sala que se pode continuar a geraççao de portas --- arrumar uma maneira de identificar sala de 2 portas
 
@@ -707,9 +717,9 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
 			}
             printf("Fixando porta\n");
             a = mapa->grid[x][y]->doors;
-            if(mapa->grid[x][y]->doors != NULL){
-                printf("Leak de memória\n");
-                return;
+            if(mapa->grid[x][y]->doors == NULL){
+                printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                exit(0);
             }
             while( mapa->grid[x][y]->doors != NULL)
             {
@@ -880,16 +890,17 @@ GGnode* GerateListPosibylit(char *gene, GGnode *alpha){ // alpha list global ---
    //start from the first link
    GGnode *headi = alpha;
    GMRoom *c;
-    GGnode* curren = malloc(sizeof(GGnode));// sem malloc aqui, se n for pra criar e manter algo.
+    GGnode* curren = malloc(sizeof(GGnode));
     curren->sala = NULL;
    //if list is empty
    int pch;
    if(headi == NULL)
    {
-      return NULL;
+       free(curren);
+       return NULL;
    }
     int i = 0;
-    GMRoom *a; // Sem malloc aqui, se n for pra criar e manter algo.
+    GMRoom *a = malloc(sizeof(GMRoom));; // Sem malloc aqui, se n for pra criar e manter algo.
     a->next = NULL;
     printf("\nGerando primeira lista: [");
    //navigate through list
@@ -904,7 +915,7 @@ GGnode* GerateListPosibylit(char *gene, GGnode *alpha){ // alpha list global ---
 
          if(pch > 0 ){
             i++;
-
+             free(a); // Se ele herdar headi, o ponteiro anterior fica perdido pra trás e vira lixo.
             a = headi->sala;
             a->next = curren->sala;
 
@@ -917,7 +928,7 @@ GGnode* GerateListPosibylit(char *gene, GGnode *alpha){ // alpha list global ---
         headi->sala = c;
 
    }
-
+    free(a);
    printf(" ] --- numero de Elementos: %d\n", i);
    //if found all possibilits return new list
    return curren;
@@ -952,6 +963,7 @@ GGnode* SeachCopatibility(GMRoom *atual, GGnode *head){
 		if(c){
             printf("Adicionando chance\n");
             i++;
+            // DENIS, esse a aqui é sempre null. Pra ele sair do for ali em cima, a é null. a->chance vai dar M.
 			b->chance =  b->chance + a->chance;
 		}
          b = b->next;
@@ -1359,7 +1371,10 @@ GmPonto selectdoor(GMRoom *atual, int x, int y){
 	GMDoor *a;
 //	a = atual->doors;  // Linha nunca usada, iniciado no FOR
     //printf("vou tentar ver, atual door");
-
+    if(atual == NULL){
+        printf("atual->doors is NULL at selectDoor\n");
+        exit(0);
+    }
 
 	for(a = atual->doors; a != NULL; a = a->next){
        //printf("entrei %s\n", a->idNextRoom);
