@@ -61,10 +61,18 @@ static void process_content_array(json_value* value, int depth)
             content1->first = b;
         }
         if(generatingRoom){
-            GMRoom *a = content->first;
-            GMRoom *b = malloc(sizeof(GMRoom));
-            b->next = a;
-            content->first = b;
+
+            if(content->first == NULL){
+                GMRoom *a = malloc(sizeof(GMRoom));
+                a->next = NULL;
+                content->first = a;
+            }
+            else{
+                GMRoom *a = content->first;
+                GMRoom *b = malloc(sizeof(GMRoom));
+                b->next = a;
+                content->first = b;
+            }
         }
         else if(generatingScatter){
             GMTileType *tile = content1->first;
@@ -427,13 +435,14 @@ static void process_content_value(json_value* value, int depth, char* name)
 
 GPMap* generateGeneticMap(GPMap *mapa){
 
+
     int saida = 1;
 	int  tentativas = 0;
 	GmPonto g;
     int x, y;
 
 
-    map = malloc(sizeof(map));
+    map = malloc(sizeof(GPGenetic_Map));
 
     map->height = mapa->height;
     map->width = mapa->width;
@@ -459,6 +468,7 @@ GPMap* generateGeneticMap(GPMap *mapa){
 
             GMRoom *tiler = malloc(sizeof(GMRoom));
             tiler->id = 0;
+            tiler->next = NULL;
             tiler->name = "name";
             map->grid[i][j] = tiler;
 
@@ -486,19 +496,24 @@ GPMap* generateGeneticMap(GPMap *mapa){
     }
 
 
-    contentFile = fopen(contentFilePath, "rt");
+    contentFile = fopen(contentFilePath, "rb");
     if (contentFile == NULL) {
         fprintf(stderr, "Unable to open %s\n", contentFilePath);
         fclose(contentFile);
         free(file_contents);
         return NULL;
     }
-    if ( fread(file_contents, file_size, 1, contentFile) != 0 ) {
+    if ( fread(file_contents, file_size, 1, contentFile) != 1 ) {
+                if (feof(contentFile)) {
+                  puts ("End-of-File reached.");
+                  printf ("Total number of bytes read: %d\n", file_size);
+                }
         fprintf(stderr, "Unable to read content of %s\n", contentFilePath);
         fclose(contentFile);
         free(file_contents);
         return NULL;
     }
+
     fclose(contentFile);
 
 
@@ -512,27 +527,34 @@ GPMap* generateGeneticMap(GPMap *mapa){
     json = (json_char*)file_contents;
     value = json_parse(json,file_size);
 
-    printf("starting to tileB: %d %d\n", map->width, map->height);
+    printf("B\n");
 
     if (value == NULL) {
         fprintf(stderr, "Unable to parse data in %s; JSON structure is probably not valid. Try dubbuging at http://jsonlint.com \n", contentFilePath);
         free(file_contents);
         exit(1);
     }
+        printf("C\n");
+
     content = malloc(sizeof(GMRoomContent));
+    content->first = NULL;
     content1 = malloc(sizeof(GMAutomataContent));
-    current = malloc(sizeof(GGnode));
+        printf("D\n");
+
     head = malloc(sizeof(GGnode));
+    head->sala = NULL;
+    current = malloc(sizeof(GGnode));
 //    GMTileType *a = malloc(sizeof(GMTileType));
 //    content->first = a;
 //    GMScatterChance *b = malloc(sizeof(GMScatterChance));
 //    a->scatter = b;
+    printf("Pre-process\n");
 
     process_content_value(value, 0, NULL);
 
     json_value_free(value);
     free(file_contents);
-//    printf("li os arquivos\n");
+    printf("li os arquivos\n");
 
 
 //    GMTileType *c = content->first;
@@ -556,13 +578,14 @@ GPMap* generateGeneticMap(GPMap *mapa){
     y =  starty;
     g.y = starty;
 
-    map->grid[startX][starty] = seach(8);
+    map->grid[startX][starty] = seach(11);
     //aqui funciona
    // system("cls");
 
-   printList();
+  // printList();
  //   system("pause");
-
+    printf("oi gente");
+    //printList();
 
     while (saida) {
         //aqui não funciona
@@ -570,14 +593,20 @@ GPMap* generateGeneticMap(GPMap *mapa){
         printf("OI\n");
         g = selectdoor(map->grid[x][y], g.x, g.y);
        //printf("Olha passe vamo ver %s",g.genes);
-		if(!!strcmp(g.genes,"I")){
+		if(strcmp(g.genes,"I")){
             printf("indo fazer a lista 1\n");
             current = GerateListPosibylit(g.genes, head);
-            printf("Fiz a lista 1\n Indo para lista 2\n");
+            printf("Fiz a lista 1\n");
+           // printList();
+            printf("Indo para lista 2\n");
             current =SeachIncopatibility(g.genes, current);
-            printf("Fiz a lista 2\n Indo para a 3\n"); // ultima vez parou aqui
+            printf("Fiz a lista 2\n"); // ultima vez parou aqui
+
+            printf("Indo para lista 3\n");
             current = SeachIncopatibilityid(map->grid[x][y]->id, current);
-            printf("fiz a lista 3\nIndo para lista 4\n");
+            printf("fiz a lista 3\n");
+            printList();
+            printf("Indo para lista 4\n");
             current = SeachIncopatibilityExit(map->grid[x][y], current);
             printf("Fiz a lista 4\n comecando a deletar portas vazias\n");
 
@@ -760,17 +789,19 @@ void discartmap(GPGenetic_Map *mapa){
 
 void printList()
 {
-   GMRoom *ptr = head->sala;
-   printf("\n[ ");
+       GMRoom *ptr = current->sala;
+       GMRoom *a;
+       printf("\n[ ");
 
-   //start from the beginning
-   while(ptr != NULL)
-	{
-      printf("(%d) ",ptr->id);
-      ptr = ptr->next;
+       //start from the beginning
+       while(ptr != NULL)
+        {
+            a = ptr->next;
+            printf("(%d) ",ptr->id);
+            ptr = a;
 
-   }
-   printf(" ]");
+       }
+       printf(" ]");
 }
 
 int length()
@@ -813,12 +844,12 @@ GMRoom *seach(int key){
 }
 
 GGnode* GerateListPosibylit(char *gene, GGnode *alpha){ // alpha list global --- // lista para amarzenar as possibilidades usada somente na função
-
+    // OK
    //start from the first link
    GGnode *headi = alpha;
    GMRoom *c;
    GGnode* curren = malloc(sizeof(GGnode));
-
+    curren->sala = NULL;
    //if list is empty
    int pch;
    if(headi == NULL)
@@ -826,8 +857,9 @@ GGnode* GerateListPosibylit(char *gene, GGnode *alpha){ // alpha list global ---
       return NULL;
    }
     int i = 0;
-
-
+    GMRoom *a = malloc(sizeof(GMRoom));
+    a->next = NULL;
+    printf("\nGerando primeira lista: [");
    //navigate through list
    while((NULL != headi->sala)){//what
 
@@ -841,18 +873,11 @@ GGnode* GerateListPosibylit(char *gene, GGnode *alpha){ // alpha list global ---
          if(pch > 0 ){
             i++;
 
-            GMRoom *a = malloc(sizeof(GMRoom));
-           // GMRoom *b = malloc(sizeof(GMRoom));
-
-            a->next = curren->sala;
-            //printf("\nni %d", headi->id);
             a = headi->sala;
-            //printf("\nnii \n");
-            //printf("\nniii \n");
+            a->next = curren->sala;
 
-            //printf("\n oi so para comferir %d \n", a->id);
             curren->sala = a;
-            //printf("\nniii \n");
+            printf(" %d", curren->sala->id);
          }
          //go to next link
 
@@ -861,9 +886,8 @@ GGnode* GerateListPosibylit(char *gene, GGnode *alpha){ // alpha list global ---
 
    }
 
-   printf("DesBuguei!  registors %d\n", i);
+   printf(" ] --- numero de Elementos: %d\n", i);
    //if found all possibilits return new list
-
    return curren;
 }
 
@@ -871,20 +895,26 @@ GGnode* SeachCopatibility(GMRoom *atual, GGnode *head){
 	int c;
 	GGnode* curren = head;
 
-    GMRoom* a;
+    GmCrossover* a;
     GMRoom* b;
-	for( b = head->sala; b != NULL; b = b->next)
+
+	for( b = curren->sala; b != NULL; b = b->next)
     {
-   		for(a = atual; a->compativeExit != NULL; a->compativeExit = a->compativeExit->next){
-			if(strcmp(b->gene, a->compativeExit->genes) == 1){
+        printf("ok1 ------------ %d\n", b->id);
+
+   		for(a = atual->compativeExit; a != NULL; a = a->next){
+			printf("ok2\n");
+			if(!strcmp(b->gene, a->genes)){
+				printf("ok3\n");
 				c = 1;
 			}
-			if(a->compativeExit->id == b->id){
+			if(a->id == b->id){
+				printf("ok1\n");
 				c = 1;
 			}
 		}
 		if(c)
-			b->chance += a->compativeExit->chance;
+			b->chance =  b->chance + a->chance;
    }
    curren->sala = b;
    return curren;
@@ -934,26 +964,32 @@ GGnode*  SeachIncopatibility(char *gene, GGnode *head){
 	int i,c;
 	GGnode* curren = malloc(sizeof(GGnode));
     GmCrossover* a;
-    GMRoom* b;
-  i = 0;
-    printf("1\n");
-	for(b = head->sala; b != NULL; b = b->next)
+    GMRoom* b = NULL;
+    GMRoom* d = NULL;
+    i = 0;
+    c = 0;
+    b = head->sala;
+	while(b != NULL || b->next != NULL)
    {
-           printf("2\n");
+        d = b->next;
+        printf("Procurando incompatibilidades genetica para sala: %d\n", b->id);
 
 		for(a = b->incompativeEntrad; a != NULL; a = a->next){
-			    printf("3\n");
+
 			if(strspn(gene,a->genes)>=1){
+                printf("Inconpatibilidade encontrada sala: %d para \n");
 				c = 1;
                 i++;
 			}
 		}
 		if(c)
 			curren = deleteid(b->id, current);
+        printf("Procurando incompatibilidades genetica para salsa: %d\n", b->id);
+         b = d;
    }
-
-   if(i== 0)
-    curren = head;
+   printf("Incompatibilidades encontradas: %d\n", c);
+    if(c == 0)
+        return head;
 
 
 	return curren;
@@ -964,27 +1000,44 @@ GGnode* SeachIncopatibilityid(int salaid, GGnode *head){
 	int i,c;
 	GGnode* curren;
     curren = head;
-	GmCrossover* a =malloc(sizeof(GmCrossover));
-	GMRoom* b = malloc(sizeof(GMRoom));
-    printf("\nHello mundo infernal");
-	for(b = curren->sala; b != NULL; b = b->next)
+	GmCrossover* a;
+	GMRoom* b = NULL;
+    //printf("\nHello mundo infernal");
+    GMRoom* d = NULL;
+    GmCrossover* e;
+    i = 0;
+    b = head->sala;
+	while(b != NULL)
    {
-
+        d = b->next;
 		c = 0;
-        //printf("\n Id da sala que tá dando merda: %d", b->id);
-		for(a = curren->sala->incompativeEntrad; a != NULL; a = a->next){
-            printf("\nEntrei mundo mais infernal");
-
+        printf("Testado incompatibilidades para sala de id: %d\n", b->id);
+		a = b->incompativeEntrad;
+		while( a != NULL){
+            printf("Verificando se existe\n");
+            e = a->next;
 			if( a->id == salaid){
-
-
 				c = 1;
 			}
+			a = e;
 		}
-		printf("\nsubi um nivel\n");
-		if(c)
+
+		if(c){
+            i++;
+            printf("Apagando sala de id(%d) da lista\n", b->id);
 			curren = deleteid(b->id, curren);
+		}
+
+
+        b = d;
+
    }
+
+
+   if(i == 0)
+        return head;
+
+
 	return curren;
 
 
@@ -1196,8 +1249,9 @@ GmPonto selectdoor(GMRoom *atual, int x, int y){
 
 
 	for(a = atual->doors; a != NULL; a = a->next){
-       // printf("entrei %s\n", a->gene);
-        if(a->idNextRoom == -1){            // DENIS, tava null, não se usa null pra int em C. Use um valor negativo
+       //printf("entrei %s\n", a->idNextRoom);
+
+        if(a->idNextRoom == NULL){            // DENIS, tava null, não se usa null pra int em C. Use um valor negativo
             if(!strcmp (a->gene,"N") || !strcmp (a->gene,"n")){
                 chosen.genes = "S";
                 chosen.y--;
@@ -1207,7 +1261,7 @@ GmPonto selectdoor(GMRoom *atual, int x, int y){
             }else if(!strcmp (a->gene,"L") || !strcmp (a->gene,"l")){
                 chosen.genes = "O";
                 chosen.x++;
-            }else if(!strcmp (a->gene,"O") || !strcmp (a->gene,"o")){
+            }else if(!strcmp(a->gene,"O") || !strcmp (a->gene,"o")){
                 chosen.genes = "L";
                 chosen.x--;
             }else{
