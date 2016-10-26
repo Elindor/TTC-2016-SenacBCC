@@ -101,7 +101,7 @@ void printList();
 int length();
 
 GPMap* generateGeneticMap(GPMap *mapa);
-GMRoom *seach(int key);
+GMRoom* seach(int key);
 GGnode* GerateListPosibylit(char *gene, GGnode *alpha);
 
 GGnode* SeachCopatibility(GMRoom *atual, GGnode *head);

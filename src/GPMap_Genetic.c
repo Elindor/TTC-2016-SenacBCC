@@ -596,14 +596,15 @@ GPMap* generateGeneticMap(GPMap *mapa){
 
     y =  starty;
     g.y = starty;
-
-    map->grid[startX][starty] = seach(11);
+        i = PMrand()%10;
+        i = i + 1;
+    map->grid[startX][starty] = seach(i);
     //aqui funciona
    // system("cls");
 
   // printList();
  //   system("pause");
-   // printf("Sala inicial id: %d\nSala inicial nome: %s\nSala inicial Chance: %d\n", map->grid[startX][starty]->id, map->grid[startX][starty]->name, map->grid[startX][starty]->chance);
+    printf("\n\nSala inicial id: %d\nSala inicial nome: %s\nSala inicial Chance: %d\n\n", map->grid[g.x][g.y]->id, map->grid[startX][starty]->name, map->grid[startX][starty]->chance);
     //printList();
 
     while (saida) {
@@ -637,13 +638,18 @@ GPMap* generateGeneticMap(GPMap *mapa){
             printf("Compartibilidades adicionadas\n Sorteando\n");
             i = Sort_Rooom(current);
             printf("Fixando a sala %d no ponto %d--%d\n", i, g.x,g.y);
+
             map->grid[g.x][g.y] = seach(i);
+
+
             printf("\nFixado portas\n");
 			fixdoor(map, x,y, g); //liga as portas de ambas as salas x y e px py, identificação da sala, g identificação da porta.
+
             printf("\nSala e portas fixadas, reiniciando\n");
 			x = g.x;
 			y = g.y;
             int con;
+            printf("Vendo quanto do mapa esta preenchido\n");
 			con = ocuppedspace(map);
 
 			if(con == 2){
@@ -671,7 +677,14 @@ GPMap* generateGeneticMap(GPMap *mapa){
 				g = varremapapor(map,g);//função muito ruim
                 if(g.x == -1){
                     con = ocuppedspace(map);
+                }else{
+                    con = ocuppedspace(map);
+                    if(con == 2){
+                        discartmap(map);
+                        con = -1;
+                    }
                 }
+
 			}
 
 			if(con == 0 || con == 2){
@@ -697,83 +710,123 @@ GPMap* generateGeneticMap(GPMap *mapa){
 }
 
 void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
-           GMDoor *a, *b;
-           printf("Invertendo o gene para fixar primeira porta\n ");
+           GMDoor* previus;
+           GMDoor* proximus;
+           GMDoor *a;
+           int i = 0, exi = 0;
+           char*geneSala;
+           int px, py, id1;
+           px = ponto.x;
+           py = ponto.y;
+
+
+            printf("Fixando portas -- %d\n",map->grid[px][py]->id);
+           printf("Invertendo o gene para fixar porta\n ");
            //inverte gene
            if(!strcmp (ponto.genes,"N") || !strcmp (ponto.genes,"n")){
-                ponto.genes = "S";
+                geneSala = "S";
 
             }else if(!strcmp (ponto.genes,"S") || !strcmp (ponto.genes,"s")){
-                ponto.genes = "N";
+                geneSala = "N";
 
             }else if(!strcmp (ponto.genes,"L") || !strcmp (ponto.genes,"l")){
-                ponto.genes = "O";
+                geneSala = "O";
 
             }else if(!strcmp (ponto.genes,"O") || !strcmp (ponto.genes,"o")){
-                ponto.genes = "L";
+                geneSala = "L";
 
             }else{
-                ponto.genes = "I";
+                geneSala = "I";
 			}
-            printf("Fixando porta\n");
+
             a = mapa->grid[x][y]->doors;
             if(mapa->grid[x][y]->doors == NULL){
                 printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
                 exit(0);
             }
-            while( mapa->grid[x][y]->doors != NULL)
-            {
-printf("Achei a porta --%d\n",mapa->grid[ponto.x][ponto.y]->id);
 
-                printf("No loop\n");
-                if(!strcmp (a->gene,ponto.genes)){
-                    printf("Achei a porta --%d\n",mapa->grid[ponto.x][ponto.y]->id);
-                    mapa->grid[x][y]->doors->idNextRoom = mapa->grid[ponto.x][ponto.y]->id;
-                    printf("Aca\n");
-                    mapa->grid[x][y]->doors->idNextRoomX = ponto.x;
-                    printf("Achei a portaaaa\n");
-                    mapa->grid[x][y]->doors->idNextRoomY = ponto.y;
-                    printf("Porta %d Fixada\n", mapa->grid[x][y]->doors->idDoor);
-                }
-                mapa->grid[x][y]->doors = mapa->grid[x][y]->doors->next;
+            printf("Iniciando busca\n");
+            while(a != NULL && exi == 0 ){
+              //if it is last GGnode
+              if(i ==0 ){
+                previus = a;
+                i++;
+              }else{
+                previus->next = a;
+              }
+
+              if( !strcmp(a->gene,geneSala)){
+                printf("Sala encontrada\n");
+                proximus = a->next;
+                 printf("AAAAA");
+                 a->idNextRoomX = ponto.x;
+                 printf("BBBBB");
+                 a->idNextRoomY = ponto.y;
+                 printf("CCCCC");
+                 //a->idNextRoom =  mapa->grid[px][py]->id;
+                 printf("Fixados pontos\n");
+                 if(previus->idDoor == a->idDoor)
+                 {
+
+                        previus = a;
+                        previus->next = proximus;
+                        printf("Primeira sala fixada\n");
+                 }else{
+
+                    previus->next = a;
+                 }
+                 exi = 1;
+
+              }
+              a = a->next;
+           }
+            printf("Tem que sair\n");
+           mapa->grid[px][py]->doors = previus;
+
+
+           printf("Fixando portas sala sorteada\n");
+            i = 0;
+            a = mapa->grid[ponto.x][ponto.y]->doors;
+            if(mapa->grid[ponto.x][ponto.y]->doors == NULL){
+                printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                exit(0);
             }
-           printf("Invertendo o gene para fixar a segunda porta\n ");
-            //inverte gene
-            if(!strcmp (ponto.genes,"N") || !strcmp (ponto.genes,"n")){
-                ponto.genes = "S";
+            printf("Iniciando busca\n");
+            while(a != NULL && exi == 0 ){
+              //if it is last GGnode
+              if(i ==0 ){
+                previus = a;
+                i++;
+              }else{
+                previus->next = a;
+              }
 
-            }else if(!strcmp (ponto.genes,"S") || !strcmp (ponto.genes,"s")){
-                ponto.genes = "N";
+              if( !strcmp(a->gene,geneSala)){
+                 printf("Sala encontrada\n");
+                 proximus = a->next;
+                 a->idNextRoomX = x;
+                 a->idNextRoomY = y;
+                 //a->idNextRoom = mapa->grid[x][y]->id;
+                 if(previus->idDoor == a->idDoor)
+                 {
+                        previus = a;
+                        previus->next = proximus;
+                 }else{
+                    previus->next = a;
+                 }
+                 exi = 1;
 
-            }else if(!strcmp (ponto.genes,"L") || !strcmp (ponto.genes,"l")){
-                ponto.genes = "O";
-
-            }else if(!strcmp (ponto.genes,"O") || !strcmp (ponto.genes,"o")){
-                ponto.genes = "L";
-
-            }else{
-                ponto.genes = "I";
-			}
-            printf("Fixando porta\n");
-            while(mapa->grid[ponto.x][ponto.y]->doors != NULL)
-            {
-
-                if(!strcmp (a->gene,ponto.genes)){
-                    mapa->grid[ponto.x][ponto.y]->doors->idNextRoom = mapa->grid[x][y]->id;
-                    mapa->grid[ponto.x][ponto.y]->doors->idNextRoomX = x;
-                    mapa->grid[ponto.x][ponto.y]->doors->idNextRoomY = y;
-                    printf("Porta %d Fixada\n", mapa->grid[ponto.x][ponto.y]->doors->idDoor);
-
-                }
-                mapa->grid[ponto.x][ponto.y]->doors = mapa->grid[ponto.x][ponto.y]->doors->next;
-            }
+              }
+              a = a->next;
+           }
+           mapa->grid[x][y]->doors = previus;
 }
 
 GmPonto seachNextRoom(GPGenetic_Map *mapa, GmPonto ponto){
     int px = ponto.x;
     int py = ponto.y;
 	GMRoom* a = mapa->grid[px][py];
-	GMDoor* b;      // DENIS b nunca é inicializado, e esse while parece nunca sair.
+	GMDoor* b = a->doors;      // DENIS b nunca é inicializado, e esse while parece nunca sair.
 	while(a->doors != NULL){
 		if(mapa->grid[b->idNextRoomX][b->idNextRoomY]->alldoorsocupped != 1){
 				ponto.x = b->idNextRoomX;
@@ -859,10 +912,11 @@ int length()
    return length;
 }
 
-GMRoom *seach(int key){
+GMRoom* seach(int key){
 
    //start from the first link
-    GMRoom* curren = head->sala;
+    GMRoom* curren = malloc(sizeof(GMRoom));
+    curren  = head->sala;
     printf("buscando sala %d", key);
    //if list is empty
     if(head == NULL)
@@ -875,6 +929,7 @@ GMRoom *seach(int key){
 
       //if it is last GGnode
       if(curren->id == key){
+         curren->next = NULL;
          return curren;
       }else {
          //go to next link
@@ -948,23 +1003,23 @@ GGnode* SeachCopatibility(GMRoom *atual, GGnode *head){
 	while(  b != NULL)
     {
         printf("Verificando compatibilidade para sala: %d\n", b->id);
-
+        c = 0;
    		for(a = atual->compativeExit; a != NULL; a = a->next){
 			printf("ok2\n");
 			if(!strcmp(b->gene, a->genes)){
 				printf("Gene compativel encontrado\n");
-				c = 1;
+				c = a->chance;
 			}
 			if(a->id == b->id){
 				printf("ID compativel encontrado\n");
-				c = 1;
+				c = a->chance;
 			}
 		}
-		if(c){
+		if(c>0){
             printf("Adicionando chance\n");
             i++;
             // DENIS, esse a aqui é sempre null. Pra ele sair do for ali em cima, a é null. a->chance vai dar M.
-			b->chance =  b->chance + a->chance;
+			b->chance =  b->chance + c;
 		}
          b = b->next;
    }
@@ -1320,10 +1375,10 @@ int Sort_Rooom(GGnode *head){
         globalchace += b->chance;
         b = b->next;
     }
-    
+
     sorte = PMrand() % globalchace;
 
-    
+
     b = head->sala;
     printf("Valor soteardo -- %d -- verificando sala correnspondente\n", sorte);
     while( b != NULL)
