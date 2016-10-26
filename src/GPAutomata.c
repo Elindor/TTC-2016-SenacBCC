@@ -11,11 +11,11 @@ static void print_depth_shift(int depth)
     }
 }
 
-static void process_content_value(json_value* value, int depth, char* name);
+static void process_automata_content_value(json_value* value, int depth, char* name);
 void addTileList(GPTileList *l, GMTile* t, int x, int y);
 void spread(GMTile *tile, GMTile *nextTile);
 
-static void process_content_object(json_value* value, int depth)
+static void process_automata_content_object(json_value* value, int depth)
 {
     int length, x;
     if (value == NULL) {
@@ -25,11 +25,11 @@ static void process_content_object(json_value* value, int depth)
     for (x = 0; x < length; x++) {
         print_depth_shift(depth);
         printf("object[%d].name = %s\n", x, value->u.object.values[x].name);
-        process_content_value(value->u.object.values[x].value, depth+1, value->u.object.values[x].name);
+        process_automata_content_value(value->u.object.values[x].value, depth+1, value->u.object.values[x].name);
     }
 }
 
-static void process_content_array(json_value* value, int depth)
+static void process_automata_content_array(json_value* value, int depth)
 {
     int length, x;
     if (value == NULL) {
@@ -53,11 +53,11 @@ static void process_content_array(json_value* value, int depth)
             tile->scatter = b;
         }
 
-        process_content_value(value->u.array.values[x], depth, NULL);
+        process_automata_content_value(value->u.array.values[x], depth, NULL);
     }
 }
 
-static void process_content_value(json_value* value, int depth, char* name)
+static void process_automata_content_value(json_value* value, int depth, char* name)
 {
     //    int j;
     if (value == NULL) {
@@ -73,21 +73,21 @@ static void process_content_value(json_value* value, int depth, char* name)
             printf("none\n");
             break;
         case json_object:
-            process_content_object(value, depth+1);
+            process_automata_content_object(value, depth+1);
             break;
         case json_array:
             if(name == NULL)
                 return;
             if(!strcmp (name,"Tiles")){
                 generatingTile = 1;
-                process_content_array(value, depth+1);
+                process_automata_content_array(value, depth+1);
                 generatingTile = 0;
 
             }
             if(!strcmp (name,"ScatterRules")){
                 generatingScatter = 1;
                 generatingTile = 0;
-                process_content_array(value, depth+1);
+                process_automata_content_array(value, depth+1);
                 generatingScatter = 0;
                 generatingTile = 1;
             }
@@ -208,7 +208,7 @@ GPMap* generateAutomataMap(GPMap *map){
 //    GMScatterChance *b = malloc(sizeof(GMScatterChance));
 //    a->scatter = b;
 
-    process_content_value(value, 0, NULL);
+    process_automata_content_value(value, 0, NULL);
 
     json_value_free(value);
     free(file_contents);

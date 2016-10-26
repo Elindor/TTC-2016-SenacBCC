@@ -35,7 +35,6 @@ typedef struct _TileList{
 
 
 GPMap* generateAutomataMap(GPMap *map);
-static void process_content_value(json_value* value, int depth, char* name);
 void addTileList(GPTileList *l, GMTile* t, int x, int y);
 void spread(GMTile *tile, GMTile *nextTile);
 

@@ -28,8 +28,10 @@ int generatingIncompaexit;
 int generatingIncompaentrade;
 int generatingCompati;
 
+static void process_genetic_content_value(json_value* value, int depth, char* name);
 
-static void process_content_object(json_value* value, int depth)
+
+static void process_genetic_content_object(json_value* value, int depth)
 {
     int length, x;
     if (value == NULL) {
@@ -39,11 +41,11 @@ static void process_content_object(json_value* value, int depth)
     for (x = 0; x < length; x++) {
         print_depth_shift(depth);
         printf("object[%d].name = %s\n", x, value->u.object.values[x].name);
-        process_content_value(value->u.object.values[x].value, depth+1, value->u.object.values[x].name);
+        process_genetic_content_value(value->u.object.values[x].value, depth+1, value->u.object.values[x].name);
     }
 }
 
-static void process_content_array(json_value* value, int depth)
+static void process_genetic_content_array(json_value* value, int depth)
 {
     int length, x;
     if (value == NULL) {
@@ -98,11 +100,11 @@ static void process_content_array(json_value* value, int depth)
             content->first->compativeExit = b;
         }
 
-        process_content_value(value->u.array.values[x], depth, NULL);
+        process_genetic_content_value(value->u.array.values[x], depth, NULL);
     }
 }
 
-static void process_content_value(json_value* value, int depth, char* name)
+static void process_genetic_content_value(json_value* value, int depth, char* name)
 {
     //    int j;
     if (value == NULL) {
@@ -118,7 +120,7 @@ static void process_content_value(json_value* value, int depth, char* name)
             printf("none\n");
             break;
         case json_object:
-            process_content_object(value, depth+1);
+            process_genetic_content_object(value, depth+1);
             break;
         case json_array:
             if(name == NULL)
@@ -126,7 +128,7 @@ static void process_content_value(json_value* value, int depth, char* name)
             if(!strcmp (name,"Tiles")){
                 generatingTile = 1;
                 generatingRoom = 0;
-                process_content_array(value, depth+1);
+                process_genetic_content_array(value, depth+1);
                 generatingTile = 0;
                 generatingRoom = 0;
             }
@@ -134,7 +136,7 @@ static void process_content_value(json_value* value, int depth, char* name)
                 generatingScatter = 1;
                 generatingTile = 0;
 
-                process_content_array(value, depth+1);
+                process_genetic_content_array(value, depth+1);
 
                 generatingScatter = 0;
                 generatingTile = 1;
@@ -142,7 +144,7 @@ static void process_content_value(json_value* value, int depth, char* name)
             if(!strcmp (name,"Rooms")){
                 generatingRoom = 1;
                 generatingTile = 0;
-                process_content_array(value, depth+1);
+                process_genetic_content_array(value, depth+1);
                 generatingTile = 0;
                 generatingRoom = 0;
 
@@ -155,7 +157,7 @@ static void process_content_value(json_value* value, int depth, char* name)
                 generatingScatter = 0;
                 generatingTile = 0;
 
-                process_content_array(value, depth+1);
+                process_genetic_content_array(value, depth+1);
 
                 generatingMap = 0;
                 generatingDoor = 0;
@@ -172,7 +174,7 @@ static void process_content_value(json_value* value, int depth, char* name)
                 generatingScatter = 0;
                 generatingTile = 0;
 
-                process_content_array(value, depth+1);
+                process_genetic_content_array(value, depth+1);
 
                 generatingMap = 0;
                 generatingDoor = 0;
@@ -193,7 +195,7 @@ static void process_content_value(json_value* value, int depth, char* name)
                 generatingIncompaentrade = 0;
                 generatingIncompaexit = 1;
 
-                process_content_array(value, depth+1);
+                process_genetic_content_array(value, depth+1);
 
                 generatingCompati = 0;
                 generatingIncompaentrade = 0;
@@ -216,7 +218,7 @@ static void process_content_value(json_value* value, int depth, char* name)
                 generatingIncompaentrade = 1;
                 generatingIncompaexit = 0;
 
-				process_content_array(value, depth+1);
+				process_genetic_content_array(value, depth+1);
 
 				generatingCompati = 0;
                 generatingIncompaentrade = 0;
@@ -239,7 +241,7 @@ static void process_content_value(json_value* value, int depth, char* name)
                 generatingIncompaentrade = 0;
                 generatingIncompaexit = 0;
 
-                process_content_array(value, depth+1);
+                process_genetic_content_array(value, depth+1);
 
                 generatingCompati = 0;
                 generatingIncompaentrade = 0;
@@ -528,7 +530,7 @@ GPMap* generateGeneticMap(GPMap *mapa){
 //    GMScatterChance *b = malloc(sizeof(GMScatterChance));
 //    a->scatter = b;
 
-    process_content_value(value, 0, NULL);
+    process_genetic_content_value(value, 0, NULL);
 
     json_value_free(value);
     free(file_contents);
@@ -961,7 +963,8 @@ GGnode*  SeachIncopatibility(char *gene, GGnode *head){
 }
 
 GGnode* SeachIncopatibilityid(int salaid, GGnode *head){
-	int i,c;
+//    int i;
+    int c;
 	GGnode* curren;
     curren = head;
 	GmCrossover* a =malloc(sizeof(GmCrossover));
@@ -991,7 +994,8 @@ GGnode* SeachIncopatibilityid(int salaid, GGnode *head){
 }
 
  GGnode*  SeachIncopatibilityExit(GMRoom *atual, GGnode *head){
-	int i,c = 0;
+//     int i;
+     int c = 0;
 	GGnode* curren = NULL;
     GMRoom* a;
     GMRoom* b;
@@ -1121,7 +1125,7 @@ GGnode* DeleteOffG(char *key, GGnode *head){ // delete intances in case not enco
 
    //start from the first link
     GGnode* curren = head;
-    GGnode* previous = NULL;
+    //GGnode* previous = NULL;
     GMRoom* b;
    //if list is empty
    if(head == NULL){
@@ -1141,7 +1145,7 @@ GGnode* DeleteOffG(char *key, GGnode *head){ // delete intances in case not enco
 }
 
 int Sort_Rooom(GGnode *head){
-    GGnode* curren = head;
+    //GGnode* curren = head;
     GMRoom* b;
     int globalchace;
     int sorte;
@@ -1185,7 +1189,7 @@ int ocuppedspace(GPGenetic_Map *mapa){
 }
 
 GmPonto selectdoor(GMRoom *atual, int x, int y){
-	int i;
+//	int i;
 	GmPonto chosen;
 	chosen.x = x;
 	chosen.y = y;
