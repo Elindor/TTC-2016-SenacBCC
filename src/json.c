@@ -230,7 +230,7 @@ json_value * json_parse_ex (json_settings * settings,
    long flags;
    long num_digits = 0, num_e = 0;
    json_int_t num_fraction = 0;
-
+root = NULL;
    /* Skip UTF-8 BOM
     */
    if (length >= 3 && ((unsigned char) json [0]) == 0xEF

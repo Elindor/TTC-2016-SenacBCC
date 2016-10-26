@@ -831,7 +831,7 @@ GGnode* GerateListPosibylit(char *gene, GGnode *alpha){ // alpha list global ---
    //navigate through list
    while((NULL != headi->sala)){//what
 
-         pch = strspn(gene, headi->sala->gene);
+         pch = (int)strspn(gene, headi->sala->gene);
          //printf("\n%s -- gene ---- %s\n %d resul do pch\n", headi->gene,gene, pch);
         c = headi->sala->next;
 
@@ -868,7 +868,7 @@ GGnode* GerateListPosibylit(char *gene, GGnode *alpha){ // alpha list global ---
 }
 
 GGnode* SeachCopatibility(GMRoom *atual, GGnode *head){
-	int c;
+	int c = 0;
 	GGnode* curren = head;
 
     GMRoom* a;
@@ -931,7 +931,7 @@ GGnode* deleteid(int key, GGnode *head){
 }
 
 GGnode*  SeachIncopatibility(char *gene, GGnode *head){
-	int i,c;
+	int i,c = 0;
 	GGnode* curren = malloc(sizeof(GGnode));
     GmCrossover* a;
     GMRoom* b;
@@ -991,8 +991,8 @@ GGnode* SeachIncopatibilityid(int salaid, GGnode *head){
 }
 
  GGnode*  SeachIncopatibilityExit(GMRoom *atual, GGnode *head){
-	int i,c;
-	GGnode* curren;
+	int i,c = 0;
+	GGnode* curren = NULL;
     GMRoom* a;
     GMRoom* b;
 	for( b = head->sala; b != NULL; b = b->next)
@@ -1041,28 +1041,28 @@ GGnode*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GGnode *head){
 	   //remove sala que vão causar conflito
         test = mapa->grid[x-1][y]->id;
         if(test != 0){
-            pch = strspn("O", mapa->grid[x-1][y]->gene);
+            pch = (int)strspn("O", mapa->grid[x-1][y]->gene);
             if(pch > 0)
                 curren = DeleteOffG("L", curren);
         }
 
         test = mapa->grid[x+1][y]->id;
         if(test != 0){
-            pch = strspn("L", mapa->grid[x+1][y]->gene);
+            pch = (int)strspn("L", mapa->grid[x+1][y]->gene);
             if(pch > 0)
                 curren = DeleteOffG("O", curren);
         }
 
         test = mapa->grid[x][y-1]->id;
         if(test != 0){
-            pch = strspn("S", mapa->grid[x][y-1]->gene);
+            pch = (int)strspn("S", mapa->grid[x][y-1]->gene);
             if(pch > 0)
                 curren = DeleteOffG("N", curren);
         }
 
         test = mapa->grid[x][y+1]->id;
         if(test != 0){
-            pch = strspn("N", mapa->grid[x][y+1]->gene);
+            pch = (int)strspn("N", mapa->grid[x][y+1]->gene);
             if(pch > 0)
                 curren = DeleteOffG("S", curren);
         }
@@ -1109,7 +1109,7 @@ GGnode* DeleteAllG(char *key, GGnode *head){ // delete al intance the one gene
 
    for(b = head->sala; b != NULL; b = b->next)
    {
-       int pch = strspn(key, b->gene);
+       int pch = (int)strspn(key, b->gene);
        if(pch > 0){
     		curren = deleteid(b->id, curren);
       }
@@ -1132,7 +1132,7 @@ GGnode* DeleteOffG(char *key, GGnode *head){ // delete intances in case not enco
 
    for(b = head->sala; b != NULL; b = b->next)
    {
-       int pch = strspn(key, b->gene);
+       int pch = (int)strspn(key, b->gene);
        if(pch > 0){
     		curren = deleteid(b->id, curren);
       }
@@ -1149,7 +1149,6 @@ int Sort_Rooom(GGnode *head){
     {
         globalchace += b->chance;
     }
-    srand(time(NULL));
     sorte = PMrand() % globalchace;
 
     for(b = head->sala; b != NULL; b = b->next)
