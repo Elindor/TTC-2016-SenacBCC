@@ -603,7 +603,7 @@ GPMap* generateGeneticMap(GPMap *mapa){
 
   // printList();
  //   system("pause");
-    printf("\n\nSala inicial id: %d\nSala inicial nome: %s\nSala inicial Chance: %d\n\n", map->grid[g.x][g.y]->id, map->grid[startX][starty]->name, map->grid[startX][starty]->chance);
+//    printf("\n\nSala inicial id: %d\nSala inicial nome: %s\nSala inicial Chance: %d\n\n", map->grid[g.x][g.y]->id, map->grid[startX][starty]->name, map->grid[startX][starty]->chance);
     //printList();
 
     while (saida) {
@@ -716,7 +716,7 @@ GPMap* generateGeneticMap(GPMap *mapa){
 }
 
 void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
-           GMDoor* previus;
+           GMDoor* previus = NULL;
            GMDoor* proximus;
            GMDoor *a;
            int i = 0, exi = 0;
@@ -923,7 +923,7 @@ int length()
 GMRoom* seach(int key){
 
    //start from the first link
-    GMRoom* curren = malloc(sizeof(GMRoom));
+    GMRoom* curren;
     curren  = head->sala;
     printf("buscando sala %d", key);
    //if list is empty
