@@ -489,6 +489,8 @@ GPMap* generateGeneticMap(GPMap *mapa){
             tiler->id = 0;
             tiler->next = NULL;
             tiler->name = "name";
+            printf("%d %d\n", i, j);
+
             map->grid[i][j] = tiler;
         }
     }
@@ -602,8 +604,11 @@ GPMap* generateGeneticMap(GPMap *mapa){
         i =  i+1;
 
         printList();
-    map->grid[startX][starty] = seach(i,head);
-        printList();
+    
+    GMRoom* res = malloc(sizeof(GMRoom));
+    res = seach(i, head);
+    if(res != NULL)
+        map->grid[startX][starty] = res;        printList();
     //aqui funciona
    // system("cls");
 
@@ -616,6 +621,7 @@ GPMap* generateGeneticMap(GPMap *mapa){
         //aqui não funciona
         //valor errado usando a mesma condição
         //printf("OI\n");
+        
         g = selectdoor(map->grid[x][y], g.x, g.y);
        //printf("Olha passe vamo ver %s",g.genes);
 		if(strcmp(g.genes,"I")){
@@ -644,7 +650,10 @@ GPMap* generateGeneticMap(GPMap *mapa){
             i = Sort_Rooom(current);
             printf("Fixando a sala %d no ponto %d--%d\n", i, g.x,g.y);
 
-            map->grid[g.x][g.y] = seach(i,current);
+            GMRoom* res = malloc(sizeof(GMRoom));
+            res = seach(i, head);
+            if(res != NULL)
+                map->grid[g.x][g.y] = res;
 
             printf("\nSala fixada\n");
             //printf("\n\nSala id: %d\nSala nome: %s\n\n", map->grid[g.x][g.y]->id, map->grid[g.x][g.y]->name);
@@ -765,7 +774,7 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
             }
 
             printf("Iniciando busca\n");
-            while(a != NULL && exi == 0 ){
+            while(a != NULL && a->idDoor && exi == 0 ){
               //if it is last GGnode
               if(i ==0 ){
                 previus = a;
@@ -799,7 +808,7 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
               }
               a = a->next;
            }
-            printf("Tem que sair\n");
+            printf("Tem que sair %d %d\n", px, py);
             if(mapa->grid[px][py]){     // ERRO
                 printf("grid existe\n");
                 if(mapa->grid[px][py]->doors)
@@ -905,7 +914,10 @@ void discartmap(GPGenetic_Map *mapa){
     int startX = PMrand()%map->height;
     int starty = PMrand()%map->width;
     i =(PMrand()%10)+1;
-    map->grid[startX][starty] = seach(i,head);
+    GMRoom* res = malloc(sizeof(GMRoom));
+    res = seach(i, head);
+    if(res != NULL)
+        map->grid[startX][starty] = res;
 
 }
 
@@ -981,12 +993,13 @@ GGnode* GerateListPosibylit(char *gene, GGnode* alpha){ // alpha list global ---
    int pch;
    if(headi == NULL)
    {
+
        free(curren);
        return NULL;
    }
     int i = 0;
-    GMRoom *a = malloc(sizeof(GMRoom));; // Sem malloc aqui, se n for pra criar e manter algo.
-    a->next = NULL;
+    GMRoom *a; // Sem malloc aqui, se n for pra criar e manter algo.
+//    a->next = NULL;
     printf("\nGerando primeira lista: [");
    //navigate through list
     while((NULL != headi->sala)){//what
@@ -998,7 +1011,7 @@ GGnode* GerateListPosibylit(char *gene, GGnode* alpha){ // alpha list global ---
 
          if(pch > 0 ){
             i++;
-             free(a); // Se ele herdar headi, o ponteiro anterior fica perdido pra trás e vira lixo.
+//             free(a); // Se ele herdar headi, o ponteiro anterior fica perdido pra trás e vira lixo.
             a = headi->sala;
             a->next = curren->sala;
 
@@ -1009,7 +1022,7 @@ GGnode* GerateListPosibylit(char *gene, GGnode* alpha){ // alpha list global ---
         headi->sala = c;
 
    }
-    free(a);
+//    free(a);
    printf(" ] --- numero de Elementos: %d\n", i);
    //if found all possibilits return new list
    return curren;
