@@ -1011,7 +1011,6 @@ GGnode* GerateListPosibylit(char *gene, GGnode* alpha){ // alpha list global ---
 
          if(pch > 0 ){
             i++;
-//             free(a); // Se ele herdar headi, o ponteiro anterior fica perdido pra trás e vira lixo.
             a = headi->sala;
             a->next = curren->sala;
 
@@ -1022,7 +1021,6 @@ GGnode* GerateListPosibylit(char *gene, GGnode* alpha){ // alpha list global ---
         headi->sala = c;
 
    }
-//    free(a);
    printf(" ] --- numero de Elementos: %d\n", i);
    //if found all possibilits return new list
    return curren;
@@ -1270,49 +1268,60 @@ GGnode*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GGnode 
 		}
 
 	   //remove sala que vão causar conflito
-        test = mapa->grid[ponto.x-1][ponto.y]->id;
-        if(test != 0){
-
-            if(((ponto.x-1) != x) && (ponto.y != y))
-            {
-                pch = (int)strspn("O", mapa->grid[x-1][y]->gene);
-                if(pch > 0){
-                    i++;
-                    printf("Porta O Conflitante encontrada\n");
-                    curren = DeleteOffG("L", curren);
+        if(ponto.x-1 >= 0){
+            test = mapa->grid[ponto.x-1][ponto.y]->id;
+            if(test != 0){
+                printf("a\n");
+                
+                if(((ponto.x-1) != x) && (ponto.y != y))
+                {
+                    pch = (int)strspn("O", mapa->grid[x-1][y]->gene);
+                    if(pch > 0){
+                        i++;
+                        printf("Porta O Conflitante encontrada\n");
+                        curren = DeleteOffG("L", curren);
+                    }
                 }
             }
         }
-
-        test = mapa->grid[ponto.x+1][ponto.y]->id;
-        if(test != 0){
-
-            if(((ponto.x+1) != x) && (ponto.y != y)){
-                pch = (int)strspn("L", mapa->grid[x+1][y]->gene);
-                if(pch > 0){
-                    i++;
-                    printf("Porta L Conflitante encontrada\n");
-                    curren = DeleteOffG("O", curren);
+    
+        if(ponto.x + 1 < mapa->width){
+            test = mapa->grid[ponto.x+1][ponto.y]->id;
+            if(test != 0){
+                printf("b\n");
+                
+                if(((ponto.x+1) != x) && (ponto.y != y)){
+                    pch = (int)strspn("L", mapa->grid[x+1][y]->gene);
+                    if(pch > 0){
+                        i++;
+                        printf("Porta L Conflitante encontrada\n");
+                        curren = DeleteOffG("O", curren);
+                    }
                 }
             }
         }
-
-        test = mapa->grid[ponto.x][ponto.y-1]->id;
-        if(test != 0){
-
-            if(((ponto.x) != x) && (ponto.y - 1 != y)){
-                pch = (int)strspn("S", mapa->grid[x][y-1]->gene);
-                if(pch > 0){
-                    i++;
-                    printf("Porta S Conflitante encontrada\n");
-                    curren = DeleteOffG("N", curren);
+    
+        if(ponto.y-1 >= 0){
+            test = mapa->grid[ponto.x][ponto.y-1]->id;
+            if(test != 0){
+                printf("c\n");
+                
+                if(((ponto.x) != x) && (ponto.y - 1 != y)){
+                    pch = (int)strspn("S", mapa->grid[x][y-1]->gene);
+                    if(pch > 0){
+                        i++;
+                        printf("Porta S Conflitante encontrada\n");
+                        curren = DeleteOffG("N", curren);
+                    }
                 }
             }
         }
-
+    
+    if(ponto.y + 1 < mapa->height){
         test = mapa->grid[ponto.x][ponto.y+1]->id;
         if(test != 0){
-
+            printf("d\n");
+            
             if(((ponto.x) != x) && (ponto.y+1 != y)){
                 pch = (int)strspn("N", mapa->grid[x][y+1]->gene);
                 if(pch > 0){
@@ -1322,6 +1331,10 @@ GGnode*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GGnode 
                 }
             }
         }
+
+    }
+    
+    printf("e\n");
 
     if(i == 0)
         return head;
