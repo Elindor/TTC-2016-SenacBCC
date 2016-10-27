@@ -587,6 +587,7 @@ GPMap* generateGeneticMap(GPMap *mapa){
 
 
     head->sala = content->first;
+    current->sala = head->sala;
     int startX = 3;//PMrand()%map->height;
     int starty = 3; //PMrand()%map->width;
     printf("Pontos inicial %d ---%d\n", startX,starty);
@@ -597,26 +598,29 @@ GPMap* generateGeneticMap(GPMap *mapa){
     g.y = starty;
         i = PMrand()%10;
         i =  i+1;
-    map->grid[g.x][g.y] = seach(i);
+
+        printList();
+    map->grid[startX][starty] = seach(i,head);
+        printList();
     //aqui funciona
    // system("cls");
 
   // printList();
  //   system("pause");
-//    printf("\n\nSala inicial id: %d\nSala inicial nome: %s\nSala inicial Chance: %d\n\n", map->grid[g.x][g.y]->id, map->grid[startX][starty]->name, map->grid[startX][starty]->chance);
+//printf("\n\nSala inicial id: %d\nSala inicial nome: %s\nSala inicial Chance: %d\n\n", map->grid[g.x][g.y]->id, map->grid[startX][starty]->name, map->grid[startX][starty]->chance);
     //printList();
 
     while (saida) {
         //aqui não funciona
         //valor errado usando a mesma condição
-        printf("OI\n");
+        //printf("OI\n");
         g = selectdoor(map->grid[x][y], g.x, g.y);
        //printf("Olha passe vamo ver %s",g.genes);
 		if(strcmp(g.genes,"I")){
             printf("indo fazer a lista 1\n");
-            current = GerateListPosibylit(g.genes, head);
+            current = GerateListPosibylit(g.genes, current);
             printf("Fiz a lista 1\n");
-           // printList();
+            printList();
             printf("Indo para lista 2\n");
             current =SeachIncopatibility(g.genes, current);
             printf("Fiz a lista 2\n"); // ultima vez parou aqui
@@ -638,9 +642,10 @@ GPMap* generateGeneticMap(GPMap *mapa){
             i = Sort_Rooom(current);
             printf("Fixando a sala %d no ponto %d--%d\n", i, g.x,g.y);
 
-            map->grid[g.x][g.y] = seach(i);
+            map->grid[g.x][g.y] = seach(i,current);
+
             printf("\nSala fixada\n");
-            printf("\n\nSala id: %d\nSala nome: %s\n\n", map->grid[g.x][g.y]->id, map->grid[g.x][g.y]->name);
+            //printf("\n\nSala id: %d\nSala nome: %s\n\n", map->grid[g.x][g.y]->id, map->grid[g.x][g.y]->name);
 
             printf("\nFixado portas\n");
 			fixdoor(map, x,y, g); //liga as portas de ambas as salas x y e px py, identificação da sala, g identificação da porta.
@@ -664,8 +669,14 @@ GPMap* generateGeneticMap(GPMap *mapa){
                         saida = 0;
                     }
                 }
-
+			}else if(con == 1){
+                printf("\nMinimo de salas atingido\n");
+                current->sala = head->sala;
+			}else{
+                 printf("\nAinda nao atingido o minimo\n");
+                current->sala = head->sala;
 			}
+
 
 		}else{
 			printf("Not found void next door.");
@@ -886,13 +897,14 @@ void discartmap(GPGenetic_Map *mapa){
     }
     int startX = PMrand()%map->height;
     int starty = PMrand()%map->width;
-    map->grid[startX][starty] = seach(8);
+    i =(PMrand()%10)+1;
+    map->grid[startX][starty] = seach(i,head);
 
 }
 
 void printList()
 {
-       GMRoom *ptr = current->sala;
+       GMRoom *ptr = head->sala;
        GMRoom *a;
        printf("\n[ ");
 
@@ -904,7 +916,7 @@ void printList()
             ptr = a;
 
        }
-       printf(" ]");
+       printf(" ]\n");
 }
 
 int length()
@@ -920,11 +932,11 @@ int length()
    return length;
 }
 
-GMRoom* seach(int key){
+GMRoom* seach(int key, GGnode*head){
 
    //start from the first link
-    GMRoom* curren;
-    curren  = head->sala;
+    GMRoom* curren = head->sala;
+    GMRoom* a;
     printf("buscando sala %d", key);
    //if list is empty
     if(head == NULL)
@@ -937,8 +949,9 @@ GMRoom* seach(int key){
 
       //if it is last GGnode
       if(curren->id == key){
-         curren->next = NULL;
-         return curren;
+            a = curren;
+            printf("\n\nSala inicial id: %d\nSala inicial nome: %s\nSala inicial Chance: %d\n\n", a->id, a->name, a->chance);
+         return a;
       }else {
          //go to next link
          curren = curren->next;
@@ -948,11 +961,11 @@ GMRoom* seach(int key){
    return NULL;
 }
 
-GGnode* GerateListPosibylit(char *gene, GGnode *alpha){ // alpha list global --- // lista para amarzenar as possibilidades usada somente na função
+GGnode* GerateListPosibylit(char *gene, GGnode* alpha){ // alpha list global --- // lista para amarzenar as possibilidades usada somente na função
     // OK
    //start from the first link
    GGnode *headi = alpha;
-   GMRoom *c;
+    GMRoom *c;
     GGnode* curren = malloc(sizeof(GGnode));
     curren->sala = NULL;
    //if list is empty
@@ -967,13 +980,11 @@ GGnode* GerateListPosibylit(char *gene, GGnode *alpha){ // alpha list global ---
     a->next = NULL;
     printf("\nGerando primeira lista: [");
    //navigate through list
-   while((NULL != headi->sala)){//what
+    while((NULL != headi->sala)){//what
 
          pch = (int)strspn(gene, headi->sala->gene);
          //printf("\n%s -- gene ---- %s\n %d resul do pch\n", headi->gene,gene, pch);
         c = headi->sala->next;
-
-
         //printf("\npassa merda %d", c->id);
 
          if(pch > 0 ){
@@ -986,8 +997,6 @@ GGnode* GerateListPosibylit(char *gene, GGnode *alpha){ // alpha list global ---
             printf(" %d", curren->sala->id);
          }
          //go to next link
-
-
         headi->sala = c;
 
    }
@@ -1117,10 +1126,10 @@ GGnode*  SeachIncopatibility(char *gene, GGnode *head){
 
 }
 
-GGnode* SeachIncopatibilityid(int salaid, GGnode *head){
+GGnode* SeachIncopatibilityid(int salaid, GGnode* head){
     int i;
     int c;
-	GGnode* curren;
+	GGnode *curren;
     curren = head;
 	GmCrossover* a;
 	GMRoom* b = NULL;
@@ -1416,7 +1425,7 @@ int ocuppedspace(GPGenetic_Map *mapa){
             if(mapa->grid[i][j]->id != 0)
                 ocupped += mapa->grid[i][j]->Tam;
 
-    if(ocupped < mapa->minimalContent)
+    if(ocupped >= mapa->minimalContent)
         return 1;
 
     if(ocupped >= mapa->maximumContent)
