@@ -12,10 +12,11 @@
 int main(int argc, const char * argv[]) {
     // insert code here...
     int i, j;
+    srand (time(NULL));
     long count = 0;
     long innercount = 0;
     double time_spent = 0;
-    for(i = 0; i < 500; i++){
+    for(i = 0; i < 1; i++){
         clock_t start = clock();
 
         printf("Starting to generate %d\n", i);
@@ -23,7 +24,7 @@ int main(int argc, const char * argv[]) {
 //        printf("c = %d\n", m->generation);
 
         innercount += m->generation;
-        releaseMap(m);
+        //releaseMap(m);
         clock_t end = clock();
         time_spent += (double)(end - start) / CLOCKS_PER_SEC;
         

@@ -260,7 +260,7 @@ GPMap* generateAutomataMap(GPMap *map){
     tileList = malloc(sizeof(GPTileListHead));
     tileList->first = NULL;
 
-    addTileList(startingTile, 80, 80);
+    addTileList(startingTile, 20, 20);
     
 //    printf("starting to generate %d\n", tileList->first->x);
     
@@ -475,10 +475,18 @@ void addTileList(GMTile* t, int x, int y){
         temp->next = new;
     }
     else{
-        while (temp->next != NULL) {
-            temp = temp->next;
+        if(1){
+            new->next = tileList->first;
+            tileList->first = new;
+            return;
         }
-        temp->next = new;
+        else{
+            while (temp->next != NULL) {
+                temp = temp->next;
+            }
+            temp->next = new;
+        }
+        
     }
     
 }

@@ -129,7 +129,6 @@ enum GPGeneration_Type {GPGenerationType_Automata = 0, GPGenerationType_Genetic,
 GPMap* generateMap(char*mapCorePath){
 
     
-    srand (time(NULL));
 
 	map = malloc(sizeof(GPMap));
 
@@ -255,7 +254,7 @@ GPMap* generateMap(char*mapCorePath){
 
 	}
     
-    //outputCurrentMapToStream(map);
+    outputCurrentMapToStream(map);
 
     
     return map;
