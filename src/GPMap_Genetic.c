@@ -477,7 +477,7 @@ GPMap* generateGeneticMap(GPMap *mapa){
 
 
     map->grid = (GMRoom***)malloc(sizeof(GMRoom**)*map->width);
-
+    printf("%d %d\n", map->height, map->width);
     int i, j;
    // printf("%d\n", map->width);
     for(i = 0; i < map->height; i ++){
@@ -492,6 +492,7 @@ GPMap* generateGeneticMap(GPMap *mapa){
             map->grid[i][j] = tiler;
         }
     }
+    printf("%d %d\n", map->height, map->width);
 
 
 
@@ -584,6 +585,7 @@ GPMap* generateGeneticMap(GPMap *mapa){
 //    printf("\n---Starting types printing---\n %s \n %d \n %s \n %d \n\n %d \n %d \n", t->name, t->id, t->imageDir, t->type, s->chance, s->id);
 
     // Processa Mapa
+    printf("%d %d\n", map->height, map->width);
 
 
     head->sala = content->first;
@@ -798,6 +800,11 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
               a = a->next;
            }
             printf("Tem que sair\n");
+            if(mapa->grid[px][py]){     // ERRO
+                printf("grid existe\n");
+                if(mapa->grid[px][py]->doors)
+                    printf("tudo existe?\n");
+            }
             mapa->grid[px][py]->doors = previus;
 
 
@@ -937,7 +944,7 @@ GMRoom* seach(int key, GGnode*head){
    //start from the first link
     GMRoom* curren = head->sala;
     GMRoom* a;
-    printf("buscando sala %d", key);
+    printf("buscando sala %d\n", key);
    //if list is empty
     if(head == NULL)
 	{
@@ -945,10 +952,12 @@ GMRoom* seach(int key, GGnode*head){
     }
 
    //navigate through list
-    while(curren != NULL){
+    while(curren != NULL && curren->id != NULL){
+        printf("a\n");
 
       //if it is last GGnode
       if(curren->id == key){
+          printf("a\n");
             a = curren;
             printf("\n\nSala inicial id: %d\nSala inicial nome: %s\nSala inicial Chance: %d\n\n", a->id, a->name, a->chance);
          return a;
