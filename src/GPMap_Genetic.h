@@ -123,6 +123,8 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto, GP
 void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto);
 void discartmap(GPGenetic_Map *mapa);
 void printDoorList(int x, int y);
+void print_genetic_grid(GPGenetic_Map *map);
+
 
 GmPonto seachNextRoom(GPGenetic_Map *mapa,GmPonto ponto);
 int Sort_Rooom(GPRoomList *head);
@@ -130,6 +132,5 @@ int ocuppedspace(GPGenetic_Map *mapa);
 GmPonto varremapapor(GPGenetic_Map *mapa, GmPonto ponto);
 GmPonto selectdoor(GMRoom *atual,int x, int y);
 
-GMRoom *getRoom (GPGenetic_Map *map, int xPosition, int yPosition);
 #endif
 
