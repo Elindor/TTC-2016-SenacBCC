@@ -15,7 +15,7 @@ typedef struct _Crossover{
 }GmCrossover;
 
 typedef struct _ponto{
-	char *genes;
+	char genes[10];
 	int y;
     int x;
 }GmPonto;
@@ -42,7 +42,7 @@ typedef struct _Door{
 
 typedef struct _room{
 	int id;
-	char *name;
+	char name[100];
 	int height;
 	int width;
 	int chance;
@@ -62,7 +62,11 @@ typedef struct _room{
 	struct _room *next;
 }GMRoom;
 
-
+typedef struct _RoomList{
+    GMRoom *room;
+    int chance;
+    struct _RoomList *next;
+}GPRoomList;
 
 
 
@@ -98,28 +102,30 @@ typedef struct _mapa
 
 
 void printList();
+void printListTemp();
 int length();
 
 GPMap* generateGeneticMap(GPMap *mapa);
 GMRoom* seach(int key,GGnode*head);
-GGnode* GerateListPosibylit(char *gene, GGnode *alpha);
+GPRoomList* GerateListPosibylit(char *gene, GGnode *alpha);
 
-GGnode* SeachCopatibility(GMRoom *atual, GGnode *head);
-GGnode* deleteid(int key, GGnode *head);
-GGnode* SeachIncopatibility(char *gene, GGnode *head);
-GGnode* SeachIncopatibilityid(int salaid, GGnode *head);
-GGnode* SeachIncopatibilityExit(GMRoom *atual, GGnode *head);
+GPRoomList* SeachCopatibility(GMRoom *atual, GPRoomList *head);
+GPRoomList* deleteid(int key, GPRoomList *head);
+GPRoomList* SeachIncopatibility(char *gene, GPRoomList *head);
+GPRoomList* SeachIncopatibilityid(int salaid, GPRoomList *head);
+GPRoomList* SeachIncopatibilityExit(GMRoom *atual, GPRoomList *head);
 
-GGnode* DeleteEG(char *key, GGnode *head);
-GGnode* DeleteAllG(char *key, GGnode *head);
-GGnode* DeleteOffG(char *key, GGnode *head);
-GGnode*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto, GGnode *head);
+GPRoomList* DeleteEG(char *key, GPRoomList *head);
+GPRoomList* DeleteAllG(char *key, GPRoomList *head);
+GPRoomList* DeleteOffG(char *key, GPRoomList *head);
+GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto, GPRoomList *head);
 
 void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto);
 void discartmap(GPGenetic_Map *mapa);
+void printDoorList(int x, int y);
 
 GmPonto seachNextRoom(GPGenetic_Map *mapa,GmPonto ponto);
-int Sort_Rooom(GGnode *head);
+int Sort_Rooom(GPRoomList *head);
 int ocuppedspace(GPGenetic_Map *mapa);
 GmPonto varremapapor(GPGenetic_Map *mapa, GmPonto ponto);
 GmPonto selectdoor(GMRoom *atual,int x, int y);
