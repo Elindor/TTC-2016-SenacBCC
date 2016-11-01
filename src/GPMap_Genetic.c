@@ -683,73 +683,53 @@ GPMap* generateGeneticMap(GPMap *mapa){
             int con;
             //printf("Vendo quanto do mapa esta preenchido\n");
 			con = ocuppedspace(map);
+            if(con == 1  || con == 3){
+                varremapapor(map,g);
 
-			if(con == 2){
-                g = varremapapor(map,g);
-                if( g.x != -1){
+                if(g.x == -1)
+                {
                     tentativas++;
                     if(tentativas < 5){
-                        //printf("Descartando mapa");
-                        discartmap(map);
+                        g = discartmap(map, g);
                     }else{
-                        //printf("Numero limite de descarte atingido");
+                        printf("Numero limite de tentativas e descarte atingido\n");
                         saida = 0;
                     }
                 }
-			}else if(con == 1){
-                //printf("\nMinimo de salas atingido\n");
 
-			}else{
-                 //printf("\nAinda nao atingido o minimo\n");
 
-			}
-
+            }
 
 		}else{
-			//printf("Not found void next door.\n");
-			int con = -1;
-			map->grid[x][y]->alldoorsocupped = 1;
-			g = seachNextRoom(map, g); //Encontra a proxima sala que se pode continuar a geraççao de portas --- arrumar uma maneira de identificar sala de 2 portas
+            int con;
+            con = ocuppedspace(map);
+         //   con = ocuppedspace(map);
+            if(con == 1  || con == 3){
+                varremapapor(map,g);
 
-			if(g.x == -1){
-				g = varremapapor(map,g);//função muito ruim
-                if(g.x == -1){
-                    con = ocuppedspace(map);
-                }else{
-                    con = ocuppedspace(map);
-                    if(con == 2){
-                       tentativas++;
-                       if(tentativas < 5){
-                        //printf("Vou descartar");
-                        discartmap(map);
+                if(g.x == -1)
+                {
+                    tentativas++;
+                    if(tentativas < 5){
+                        g = discartmap(map, g);
                     }else{
-                        //printf("Numero limite de descarte atingido");
+                        printf("Numero limite de tentativas e descarte atingido\n");
                         saida = 0;
                     }
-                            }
                 }
 
-			}else{
-                //printf("Uma sala encontrada\n");
-			}
 
-			if(con == 1 || con == 4){
+            }
 
-                //se pegou o mapa completo ainda inclui certo
-                //printf("Todas as condições atendidas\n");
-                for (i = 0; i < map->height; i++){
-                    for (j = 0; j < map->width; j++){
-                        mapa->grid[i][j]->id = map->grid[i][j]->id;
-                    }
-                }
-
-                saida = 0;
-
-			}
 		}
 
     }
 
+        for (i = 0; i < map->height; i++){
+            for (j = 0; j < map->width; j++){
+                mapa->grid[i][j]->id = map->grid[i][j]->id;
+            }
+        }
 
 
     return mapa;
@@ -871,14 +851,31 @@ GmPonto seachNextRoom(GPGenetic_Map *mapa, GmPonto ponto){
 
 GmPonto varremapapor(GPGenetic_Map *mapa, GmPonto ponto){
     int i, j;
-
+    int exi = 0;
+    GMDoor*a;
     for (i = 0; i < mapa->height; i++){
         for (j = 0; j < mapa->width; j++){
             if(mapa->grid[i][j]->alldoorsocupped != 1){
-                ponto.x = i;
-				ponto.y = j;
+                a = mapa->grid[i][j]->doors;
+                while(a != NULL && exi == 0)
+                {
+
+                    if(a->idNextRoomX <= 0)
+                    {
+                        exi = 1;
+                    }
+                    a = a->next;
+                }
+
+                if(exi == 1 ){
+                    ponto.x = i;
+                    ponto.y = j;
+                    return ponto;
+                }
+
+
 				//printf("Econtrada sala com portas para conectar\n");
-				return ponto;
+
 			}
 		}
 	}
@@ -891,7 +888,7 @@ GmPonto varremapapor(GPGenetic_Map *mapa, GmPonto ponto){
     return ponto;
 }
 
-void discartmap(GPGenetic_Map *mapa){
+GmPonto discartmap(GPGenetic_Map *mapa, GmPonto ponto){
     int i , j;
         for(i = 0; i < map->height; i ++){
 
@@ -911,6 +908,12 @@ void discartmap(GPGenetic_Map *mapa){
     res = seach(i, head);
     if(res != NULL)
         map->grid[startX][starty] = res;
+
+    ponto.x = startX;
+    ponto.y = starty;
+
+    return ponto;
+
 
 }
 
@@ -1296,55 +1299,63 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPR
 		}
 
 	   //remove sala que vão causar conflito
-        test = mapa->grid[ponto.x-1][ponto.y]->id;
-        if(test != 0){
+        if(ponto.x - 1 >= 0){
+            test = mapa->grid[ponto.x-1][ponto.y]->id;
+            if(test != 0){
 
-            if(((ponto.x-1) != x) && (ponto.y != y))
-            {
-                //pch = (int)strspn("O", mapa->grid[x-1][y]->gene);
-                if(strstr("O", mapa->grid[x-1][y]->gene) != 0){
-                    i++;
-               //     printf("Porta O Conflitante encontrada\n");
-                    curren = DeleteOffG("L", curren);
+                if(((ponto.x-1) != x) && (ponto.y != y))
+                {
+                    //pch = (int)strspn("O", mapa->grid[x-1][y]->gene);
+                    if(strstr("O", mapa->grid[x-1][y]->gene) != 0){
+                        i++;
+                   //     printf("Porta O Conflitante encontrada\n");
+                        curren = DeleteOffG("L", curren);
+                    }
                 }
             }
         }
 
-        test = mapa->grid[ponto.x+1][ponto.y]->id;
-        if(test != 0){
+        if(ponto.x+1 <= map->width){
+            test = mapa->grid[ponto.x+1][ponto.y]->id;
+            if(test != 0){
 
-            if(((ponto.x+1) != x) && (ponto.y != y)){
-               // pch = (int)strspn("L", mapa->grid[x+1][y]->gene);
-                if(strstr("L", mapa->grid[x+1][y]->gene) != 0){
-                    i++;
-                //    printf("Porta L Conflitante encontrada\n");
-                    curren = DeleteOffG("O", curren);
+                if(((ponto.x+1) != x) && (ponto.y != y)){
+                   // pch = (int)strspn("L", mapa->grid[x+1][y]->gene);
+                    if(strstr("L", mapa->grid[x+1][y]->gene) != 0){
+                        i++;
+                    //    printf("Porta L Conflitante encontrada\n");
+                        curren = DeleteOffG("O", curren);
+                    }
                 }
             }
         }
 
-        test = mapa->grid[ponto.x][ponto.y-1]->id;
-        if(test != 0){
+        if(ponto.x-1 >= 0){
+            test = mapa->grid[ponto.x][ponto.y-1]->id;
+            if(test != 0){
 
-            if(((ponto.x) != x) && (ponto.y - 1 != y)){
-               // pch = (int)strspn("S", mapa->grid[x][y-1]->gene);
-                if(strstr("S", mapa->grid[x][y-1]->gene) != 0){
-                    i++;
-                 //   printf("Porta S Conflitante encontrada\n");
-                    curren = DeleteOffG("N", curren);
+                if(((ponto.x) != x) && (ponto.y - 1 != y)){
+                   // pch = (int)strspn("S", mapa->grid[x][y-1]->gene);
+                    if(strstr("S", mapa->grid[x][y-1]->gene) != 0){
+                        i++;
+                     //   printf("Porta S Conflitante encontrada\n");
+                        curren = DeleteOffG("N", curren);
+                    }
                 }
             }
         }
 
-        test = mapa->grid[ponto.x][ponto.y+1]->id;
-        if(test != 0){
+        if(ponto.y+1 <= map->height){
+            test = mapa->grid[ponto.x][ponto.y+1]->id;
+            if(test != 0){
 
-            if(((ponto.x) != x) && (ponto.y+1 != y)){
-               // pch = (int)strspn("N", mapa->grid[x][y+1]->gene);
-                if(strstr("N", mapa->grid[x][y+1]->gene) != 0){
-                    i++;
-                  //  printf("Porta N Conflitante encontrada\n");
-                    curren = DeleteOffG("S", curren);
+                if(((ponto.x) != x) && (ponto.y+1 != y)){
+                   // pch = (int)strspn("N", mapa->grid[x][y+1]->gene);
+                    if(strstr("N", mapa->grid[x][y+1]->gene) != 0){
+                        i++;
+                      //  printf("Porta N Conflitante encontrada\n");
+                        curren = DeleteOffG("S", curren);
+                    }
                 }
             }
         }
@@ -1466,7 +1477,7 @@ int ocuppedspace(GPGenetic_Map *mapa){
     if(mapa->maximumContent == -1)
         mapa->maximumContent = mapa->height * mapa->width;
      if(mapa->minimalContent == -1)
-        mapa->minimalContent = (mapa->height * mapa->width)/2;
+        mapa->minimalContent =(int) ((mapa->height * mapa->width)/2);
 
 
     for (i = 0; i < mapa->height; i++)
