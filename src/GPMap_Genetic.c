@@ -600,15 +600,17 @@ GPMap* generateGeneticMap(GPMap *mapa){
 
     y =  starty;
     g.y = starty;
-        i = PMrand()%10;
-        i =  i+1;
+    i = PMrand()%10;
+    i =  i+1;
 
-        printList();
-
+    //    printList();
+    /*
     GMRoom* res = malloc(sizeof(GMRoom));
     res = seach(i, head);
     if(res != NULL)
         map->grid[startX][starty] = res;
+    */
+    FixRoom(map,g,i);
 
     printList();
     //aqui funciona
@@ -625,9 +627,13 @@ GPMap* generateGeneticMap(GPMap *mapa){
         ////printf("OI\n");
 
         g = selectdoor(map->grid[x][y], g.x, g.y);
+
+
        ////printf("Olha passe vamo ver %s",g.genes);
 		if(strcmp(g.genes,"I")){
             //printf("indo fazer a lista 1\n");
+            GMRoom*res = seach(map->grid[x][y]->id, head);
+
             current = GerateListPosibylit(g.genes, head);
             //printf("Fiz a lista 1\n");
            // printList();
@@ -642,7 +648,7 @@ GPMap* generateGeneticMap(GPMap *mapa){
            // printList();
            // printListTemp();
             //printf("Indo para lista 4\n");
-            current = SeachIncopatibilityExit(map->grid[x][y], current);
+            current = SeachIncopatibilityExit(res, current);
             //printf("Fiz a lista 4\n comecando a deletar portas vazias\n");
            // printList();
            //printListTemp();
@@ -653,15 +659,17 @@ GPMap* generateGeneticMap(GPMap *mapa){
             //printList();
             //printListTemp();
             //printf("\nAdiconando compatibilidade\n");
-            current =SeachCopatibility(map->grid[x][y],current);
+            current =SeachCopatibility(res,current);
             //printf("Compartibilidades adicionadas\n Sorteando\n");
             i = Sort_Rooom(current);
             //printf("Fixando a sala %d no ponto %d--%d\n", i, g.x,g.y);
-
+            /*
             GMRoom* res = malloc(sizeof(GMRoom));
             res = seach(i, head);
             if(res != NULL)
                 map->grid[g.x][g.y] = res;
+            */
+            FixRoom(map,g,i);
 
             //printf("\nSala fixada\n");
             ////printf("\n\nSala id: %d\nSala nome: %s\n\n", map->grid[g.x][g.y]->id, map->grid[g.x][g.y]->name);
@@ -1529,9 +1537,64 @@ GMRoom *getRoom (GPGenetic_Map *map, int xPosition, int yPosition){
     return tile;
 }
 
-void FixRoom(){
+void FixRoom(GPGenetic_Map *map, GmPonto ponto, int fonte){
+    GMRoom*FontedeDados = seach(fonte,head);
+    int i = 0;
+
+    map->grid[ponto.x][ponto.y]->id = FontedeDados->id;
+    map->grid[ponto.x][ponto.y]->height = FontedeDados->height;
+    map->grid[ponto.x][ponto.y]->width = FontedeDados->width;
+    map->grid[ponto.x][ponto.y]->Tam =FontedeDados->Tam;
+    map->grid[ponto.x][ponto.y]->alldoorsocupped = 0;
+
+    map->grid[ponto.x][ponto.y]->gene = malloc(sizeof(map->grid[ponto.x][ponto.y]->gene));
+    strcpy(map->grid[ponto.x][ponto.y]->gene,FontedeDados->gene);
+
+    strncpy(map->grid[ponto.x][ponto.y]->name,FontedeDados->name,sizeof(map->grid[ponto.x][ponto.y]->name));
 
 
+    GMDoor*a = FontedeDados->doors;
+    while(a != NULL){
+        if(i == 0){
+            GMDoor*novo = malloc(sizeof(GMDoor));
+
+            novo->idDoor = a->idDoor;
+            novo->idRoomX = a->idRoomX;
+            novo->idRoomY = a->idRoomY;
+            novo->idNextdoor = a->idNextdoor;
+            novo->idNextRoom = a->idNextRoom;
+            novo->idNextRoomX = a->idNextRoomX;
+            novo->idNextRoomY = a->idNextRoomY;
+
+            novo->gene = malloc(sizeof(novo->gene));
+            strcpy(novo->gene,a->gene);
+
+            novo->next = NULL;
+            map->grid[ponto.x][ponto.y]->doors = novo;
+
+            i++;
+
+        }else{
+            GMDoor*novo = malloc(sizeof(GMDoor));
+
+            novo->idDoor = a->idDoor;
+            novo->idRoomX = a->idRoomX;
+            novo->idRoomY = a->idRoomY;
+            novo->idNextdoor = a->idNextdoor;
+            novo->idNextRoom = a->idNextRoom;
+            novo->idNextRoomX = a->idNextRoomX;
+            novo->idNextRoomY = a->idNextRoomY;
+
+            novo->gene = malloc(sizeof(novo->gene));
+            strcpy(novo->gene,a->gene);
+
+            novo->next = map->grid[ponto.x][ponto.y]->doors;
+            map->grid[ponto.x][ponto.y]->doors = novo;
+        }
+        a = a->next;
+
+
+    }
 
 }
 

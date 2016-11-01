@@ -123,6 +123,9 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto, GP
 void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto);
 void discartmap(GPGenetic_Map *mapa);
 void printDoorList(int x, int y);
+
+void FixRoom(GPGenetic_Map *map, GmPonto ponto, int fonte);
+
 void print_genetic_grid(GPGenetic_Map *map);
 
 
