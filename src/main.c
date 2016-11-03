@@ -23,7 +23,7 @@ int main(int argc, const char * argv[]) {
         GPMap *m = generateMap("core.json");
 //        printf("c = %d\n", m->generation);
 
-        innercount += m->generation;
+        //innercount += m->generation;
         //releaseMap(m);
         clock_t end = clock();
         time_spent += (double)(end - start) / CLOCKS_PER_SEC;

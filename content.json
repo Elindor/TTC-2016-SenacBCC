@@ -4,17 +4,24 @@
 		"Id": 0,
 		"ImageDir": "img/water.png",
 		"Type": 1,
-		"ScatterRules": null
+              "ScatterRules": [{
+                               "Chance": 100,
+                               "Id": 0
+                               },
+                               {
+                               "Chance": 0,
+                               "Id": 2
+                               }]
 	}, {
 		"Name": "grass",
 		"Id": 1,
 		"ImageDir": "img/grass.png",
 		"Type": 0,
 		"ScatterRules": [{
-			"Chance": 40,
+			"Chance": 30,
 			"Id": 2
 		}, {
-			"Chance": 60,
+			"Chance": 70,
 			"Id": 1
 		}]
 	}, {
@@ -32,5 +39,6 @@
 			"Chance": 70,
 			"Id": 0
 		}]
-	}]
+	}
+    ]
 }

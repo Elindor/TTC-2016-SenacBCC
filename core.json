@@ -1,8 +1,8 @@
 {
 	"mapName": "nomeMapa",
 	"GenerationType": 0,
-	"Width": 500,
-	"Height": 500,
+	"Width": 40,
+	"Height": 40,
 	"MinimalContent": 30,
 	"MaximumContent": 80,
 	"ConditionSet": "condition.json",
