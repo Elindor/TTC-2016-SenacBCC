@@ -1006,7 +1006,7 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
 
             p = ponto.y +1;
 
-            if(!(ponto.x == x && p == y )  && p > 0){
+            if(!(ponto.x == x && p == y )  && p < (map->width-1)){
                 if(mapa->grid[ponto.x][p]->id != 0)
                 {
                     if((strstr(mapa->grid[ponto.x][p]->gene, "O")!= NULL) && (strstr(mapa->grid[ponto.x][ponto.y]->gene, "L")!= NULL)){
@@ -1464,7 +1464,7 @@ GPRoomList* deleteid(int key, GPRoomList *head){
       }else {
          //store reference to current link
          previous = curren;
-         //move to next link
+        //move to next link
          curren = curren->next;
       }
 
@@ -1568,7 +1568,7 @@ GPRoomList* SeachIncopatibilityid(int salaid, GPRoomList* head){
 
 }
 
- GPRoomList*  SeachIncopatibilityExit(GMRoom *atual, GPRoomList *head){
+GPRoomList*  SeachIncopatibilityExit(GMRoom *atual, GPRoomList *head){
 
 	int i,c;
 	GPRoomList* curren = head;
@@ -1643,28 +1643,51 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPR
         // Pegando as informaçãos das salas laterais do ponto
         int id1,id2,id3, id4;
         if((ponto.x+1) < (mapa->width-1)){
-            id1 = mapa->grid[ponto.x+1][ponto.y]->id;
+            tx = ponto.x + 1;
+            if(mapa->grid[tx][ponto.y]->id != 0){
+               id1 = mapa->grid[tx][ponto.y]->id;
+            }else{
+                id1 = 0;
+            }
 
         }else{
             id1 = 0;
         }
 
         if((ponto.x-1) > 0 ){
-            id2 = mapa->grid[ponto.x-1][ponto.y]->id;
+            tx = ponto.x -1;
+            if(mapa->grid[tx][ponto.y]->id != 0){
+               id2 = mapa->grid[tx][ponto.y]->id;
+            }else{
+                id2 = 0;
+            }
+
 
         }else{
             id2 = 0;
         }
 
         if((ponto.y+1) < (mapa->width-1)){
-            id3 = mapa->grid[ponto.x][ponto.y+1]->id;
+            ty = ponto.y +1;
+
+            if(mapa->grid[ponto.x][ty]->id != 0){
+               id3 = mapa->grid[ponto.x][ty]->id;
+            }else{
+                id3 = 0;
+            }
+
 
         }else{
             id3 = 0;
         }
 
         if((ponto.y-1) > 0){
-            id4 = mapa->grid[ponto.x][ponto.y-1]->id;
+            ty = ponto.y -1;
+             if(mapa->grid[ponto.x][ty]->id != 0){
+               id4 = mapa->grid[ponto.x][ty]->id;
+            }else{
+                id4 = 0;
+            }
 
         }else{
             id4 = 0;
@@ -1678,7 +1701,7 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPR
                 if(strstr(mapa->grid[tx][ponto.y]->gene,"L") != NULL){
                //     printf("Porta O Conflitante encontrada\n");
                         i++;
-                        curren = DeleteOffG("L", curren);
+                        curren = DeleteOffG("O", curren);
                 }else{
                         i++;
                         curren = DeleteAllG("L", curren);
@@ -1689,11 +1712,11 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPR
 
         if(id2 != 0){
             tx = ponto.x-1;
-            if( tx != x && ponto.y != y){
+            if( tx != x){
                 if(strstr(mapa->grid[tx][ponto.y]->gene,"O") != NULL){
                //     printf("Porta O Conflitante encontrada\n");
                     i++;
-                    curren = DeleteOffG("O", curren);
+                    curren = DeleteOffG("L", curren);
                 }else{
                         i++;
                         curren = DeleteAllG("O", curren);
@@ -1704,11 +1727,11 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPR
 
         if(id3 != 0){
             ty = ponto.y+1;
-            if( ponto.x != x && ty != y){
+            if(ty != y){
                 if(strstr(mapa->grid[ponto.x][ty]->gene,"S") != NULL){
                //     printf("Porta O Conflitante encontrada\n");
                     i++;
-                    curren = DeleteOffG("S", curren);
+                    curren = DeleteOffG("N", curren);
                 }else{
                         i++;
                         curren = DeleteAllG("S", curren);
@@ -1719,18 +1742,20 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPR
 
         if(id4 != 0){
             ty = ponto.y-1;
-            if( ponto.x != x && ty != y){
+            if( ty != y){
                 if(strstr(mapa->grid[ponto.x][ty]->gene,"N") != NULL){
                //     printf("Porta O Conflitante encontrada\n");
                     i++;
-                    curren = DeleteOffG("N", curren);
+                    curren = DeleteOffG("S", curren);
                 }else{
-                        i++;
-                        curren = DeleteAllG("N", curren);
+                    i++;
+                    curren = DeleteAllG("N", curren);
 
                 }
             }
         }
+
+
     if(i == 0)
         return head;
 
@@ -1764,9 +1789,10 @@ GPRoomList* DeleteEG(char *key, GPRoomList*head){ //Delete especific gene
 GPRoomList* DeleteAllG(char *key, GPRoomList*head){ // delete al intance the one gene
 
    //start from the first link
-    GPRoomList*curren = head;
+    //GPRoomList*curren = malloc(sizeof(GPRoomList));
+    //curren = head;
    //if list is empty
-   if(head == NULL){
+   /*if(head == NULL){
       return NULL;
    }
 
@@ -1775,22 +1801,61 @@ GPRoomList* DeleteAllG(char *key, GPRoomList*head){ // delete al intance the one
    {
        //int pch = (int)strspn(key, curren->room->gene);
        if(strstr(curren->room->gene, key) != NULL){
-    		curren = deleteid(curren->room->id, head);
+    		curren = deleteid(curren->room->id,curren);
       }else{
         curren = curren->next;
       }
 
    }
-   return curren;
+   */
+    GPRoomList* curren = head;
+    GPRoomList* previous = NULL;
+
+   //if list is empty
+   if(head == NULL){
+      return NULL;
+   }
+
+   //navigate through list
+   while(curren != NULL){
+
+      //if it is last GGnode
+      if(strstr(curren->room->gene, key) != NULL){
+        if(curren == head) {
+          //change first to point to next link
+          previous = curren;
+          curren = curren->next;
+       }else {
+          //bypass the current link
+          previous->next = curren->next;
+
+          curren = curren->next;
+       }
+      }else {
+         //store reference to current link
+         previous = curren;
+        //move to next link
+         curren = curren->next;
+      }
+
+   }
+
+   //found a match, update the link
+
+
+
+
+
+   return previous;
 }
 
 GPRoomList* DeleteOffG(char *key, GPRoomList *head){ // delete intances in case not encontre one type especifc gene
 
    //start from the first link
-    GPRoomList* curren = head;
+    //GPRoomList* curren = head;
     //GGnode* previous = NULL;
    //if list is empty
-   if(head == NULL){
+  /* if(head == NULL){
       return NULL;
    }
 
@@ -1806,6 +1871,50 @@ GPRoomList* DeleteOffG(char *key, GPRoomList *head){ // delete intances in case 
       }
    }
    return curren;
+
+   */
+
+    GPRoomList* curren = head;
+    GPRoomList* previous = NULL;
+
+   //if list is empty
+   if(head == NULL){
+      return NULL;
+   }
+
+   //navigate through list
+   while(curren != NULL){
+
+      //if it is last GGnode
+      if(strstr(curren->room->gene, key) == NULL){
+        if(curren == head) {
+          //change first to point to next link
+          previous = curren;
+          curren = curren->next;
+
+       }else {
+          //bypass the current link
+          previous->next = curren->next;
+          curren = curren->next;
+
+       }
+      }else {
+         //store reference to current link
+         previous = curren;
+        //move to next link
+         curren = curren->next;
+      }
+
+   }
+
+   //found a match, update the link
+
+
+
+
+
+   return previous;
+
 }
 
 int Sort_Rooom(GPRoomList *head){
