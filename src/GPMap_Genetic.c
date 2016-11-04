@@ -626,8 +626,10 @@ GPMap* generateGeneticMap(GPMap *mapa){
         //valor errado usando a mesma condição
         ////printf("OI\n");
 
-        g = selectdoor(map->grid[x][y], g.x, g.y);
-
+        if(map->grid[x][y]->id != 0 )
+            g = selectdoor(map->grid[x][y], g.x, g.y);
+        else
+            strcpy(g.genes,"I");
 
        ////printf("Olha passe vamo ver %s",g.genes);
 		if(strcmp(g.genes,"I")){
@@ -685,8 +687,8 @@ GPMap* generateGeneticMap(GPMap *mapa){
             int con;
             //printf("Vendo quanto do mapa esta preenchido\n");
 			con = ocuppedspace(map);
-            if(con == 1  || con == 3){
-                varremapapor(map,g);
+            if(con == 3){
+                g = varremapapor(map,g);
 
                 if(g.x == -1)
                 {
@@ -700,10 +702,33 @@ GPMap* generateGeneticMap(GPMap *mapa){
                 }
 
 
+            }else if( con == 2){
+                        g = varremapapor(map,g);
+
+                        if(g.x != -1)
+                        {
+                            tentativas++;
+                            if(tentativas < 5){
+                                g = discartmap(map, g);
+                            }else{
+                                printf("Numero limite de tentativas e descarte atingido\n");
+                                saida = 0;
+                            }
+
+                        }else{
+                            printf("Mapa atendendo requisitos minimos, numero de tentativas: %d", tentativas);
+                            saida = 0;
+
+                        }
+
             }
 
 		}else{
+
             g = varremapapor(map,g);
+            x = g.x;
+			y = g.y;
+
          //   con = ocuppedspace(map);
             if(g.x == -1){ //MENOS //3NO LIMITE
 
@@ -719,6 +744,9 @@ GPMap* generateGeneticMap(GPMap *mapa){
                         printf("Numero limite de tentativas e descarte atingido\n");
                         saida = 0;
                     }
+                }else if( con == 2 || con == 1){
+                    printf("Mapa atendendo requisitos minimos, numero de tentativas: %d", tentativas);
+                    saida = 0;
                 }
 
 
@@ -842,16 +870,261 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
             //verificando    salas ao redor!
             int p = ponto.x + 1;
 
-            if(!(p == x && ponto.y == y )&& p < (map->height-1) ){
+            if(p != ponto.x && p < (map->height-1) ){
                 if(mapa->grid[p][ponto.y]->id != 0)
                 {
-                    if((strstr(mapa->grid[p][ponto.y]->gene, "S")!= NULL) && (strstr(mapa->grid[ponto.x][ponto.y]->gene, "N")!= NULL)){
+                    if((strstr(mapa->grid[p][ponto.y]->gene, "O")!= NULL) && (strstr(mapa->grid[ponto.x][ponto.y]->gene, "L")!= NULL)){
 
                     a = mapa->grid[p][ponto.y]->doors;
                     if(mapa->grid[p][ponto.y]->doors == NULL){
                         //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
                         exit(0);
                     }
+                    exi = 0;
+                    //printf("Iniciando busca\n");
+                    while(a != NULL && a->idDoor && exi == 0 ){
+                      //if it is last GGnode
+
+
+                      if( !strcmp(a->gene,"O")){
+                        //printf("Sala encontrada %s\n", geneSala);
+                         a->idNextRoomX = ponto.x;
+                         a->idNextRoomY = ponto.y;
+                         a->idNextRoom =  mapa->grid[ponto.x][ponto.y]->id;
+                         //printf("Fixados pontos\n");
+                         idl = a->idDoor;
+                         exi = 1;
+
+                      }
+                      a = a->next;
+                   }
+
+                    //printf("Fixando portas sala sorteada\n");
+                    i = 0;
+                    exi = 0;
+                    b = mapa->grid[ponto.x][ponto.y]->doors;
+                    if(mapa->grid[ponto.x][ponto.y]->doors == NULL){
+                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                        exit(0);
+                    }
+                    //printDoorList(ponto.x, ponto.y);
+                    //printf("Iniciando busca\n");
+                    while(b != NULL && exi == 0 ){
+                      //if it is last GGnode
+
+                      if( !strcmp(b->gene,"L")){
+                         //printf("Sala encontrada %s\n", ponto.genes);
+                         b->idNextRoomX = p;
+                         b->idNextRoomY = ponto.y;
+                         b->idNextRoom = mapa->grid[p][ponto.y]->id;
+                         b->idNextdoor = idl;
+                         idl = b->idDoor;
+                         exi = 1;
+
+                      }
+                      b = b->next;
+                   }
+
+                    // Fixando somento o ultimo Door iD
+                    a = mapa->grid[p][ponto.y]->doors;
+                    if(mapa->grid[p][ponto.y]->doors == NULL){
+                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                        exit(0);
+                    }
+                    exi = 0;
+                    //printf("Iniciando busca\n");
+                    while(a != NULL && a->idDoor && exi == 0 ){
+                      //if it is last GGnode
+
+
+                      if( !strcmp(a->gene,"O")){
+                        //printf("Sala encontrada %s\n", geneSala);
+                         a->idNextdoor = idl;
+                         exi = 1;
+
+                      }
+                      a = a->next;
+                   }
+
+                }
+            }
+            }
+
+            p = ponto.x - 1;
+            if(p!= ponto.x  && p > 0){
+                if(mapa->grid[p][ponto.y]->id != 0)
+                {
+                    if((strstr(mapa->grid[p][ponto.y]->gene, "L")!= NULL) && (strstr(mapa->grid[ponto.x][ponto.y]->gene, "O")!= NULL)){
+
+                    a = mapa->grid[p][ponto.y]->doors;
+                    if(mapa->grid[p][ponto.y]->doors == NULL){
+                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                        exit(0);
+                    }
+                    exi = 0;
+                    //printf("Iniciando busca\n");
+                    while(a != NULL && a->idDoor && exi == 0 ){
+                      //if it is last GGnode
+
+
+                      if( !strcmp(a->gene,"L")){
+                        //printf("Sala encontrada %s\n", geneSala);
+                         a->idNextRoomX = ponto.x;
+                         a->idNextRoomY = ponto.y;
+                         a->idNextRoom =  mapa->grid[ponto.x][ponto.y]->id;
+                         //printf("Fixados pontos\n");
+                         idl = a->idDoor;
+                         exi = 1;
+
+                      }
+                      a = a->next;
+                        }
+
+                    //printf("Fixando portas sala sorteada\n");
+                    i = 0;
+                    exi = 0;
+                    b = mapa->grid[ponto.x][ponto.y]->doors;
+                    if(mapa->grid[ponto.x][ponto.y]->doors == NULL){
+                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                        exit(0);
+                    }
+
+                    //printf("Iniciando busca\n");
+                    while(b != NULL && exi == 0 ){
+                      //if it is last GGnode
+
+                      if( !strcmp(b->gene,"O")){
+                         //printf("Sala encontrada %s\n", ponto.genes);
+                         b->idNextRoomX = p;
+                         b->idNextRoomY = ponto.y;
+                         b->idNextRoom = mapa->grid[p][ponto.y]->id;
+                         b->idNextdoor = idl;
+                         idl = b->idDoor;
+                         exi = 1;
+
+                      }
+                      b = b->next;
+                   }
+
+                    // Fixando somento o ultimo Door iD
+                    a = mapa->grid[p][ponto.y]->doors;
+                    if(mapa->grid[p][ponto.y]->doors == NULL){
+                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                        exit(0);
+                    }
+                    exi = 0;
+                    //printf("Iniciando busca\n");
+                    while(a != NULL && a->idDoor && exi == 0 ){
+                      //if it is last GGnode
+
+
+                      if( !strcmp(a->gene,"L")){
+                        //printf("Sala encontrada %s\n", geneSala);
+                         a->idNextdoor = idl;
+                         exi = 1;
+
+                      }
+                      a = a->next;
+                   }
+
+                }
+
+            }
+            }
+
+            p = ponto.y +1;
+
+            if(p != ponto.y  && p < (map->width-1)){
+                if(mapa->grid[ponto.x][p]->id != 0)
+                {
+                    if((strstr(mapa->grid[ponto.x][p]->gene, "N")!= NULL) && (strstr(mapa->grid[ponto.x][ponto.y]->gene, "S")!= NULL)){
+                    a = mapa->grid[ponto.x][p]->doors;
+                    if(mapa->grid[ponto.x][p]->doors == NULL){
+                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                        exit(0);
+                    }
+                    exi = 0;
+                    //printf("Iniciando busca\n");
+                    while(a != NULL && a->idDoor && exi == 0 ){
+                      //if it is last GGnode
+
+
+                      if( !strcmp(a->gene,"N")){
+                        //printf("Sala encontrada %s\n", geneSala);
+                         a->idNextRoomX = ponto.x;
+                         a->idNextRoomY = ponto.y;
+                         a->idNextRoom =  mapa->grid[ponto.x][ponto.y]->id;
+                         //printf("Fixados pontos\n");
+                         idl = a->idDoor;
+                         exi = 1;
+
+                      }
+                      a = a->next;
+                   }
+
+                    //printf("Fixando portas sala sorteada\n");
+                    i = 0;
+                    exi = 0;
+                    b = mapa->grid[ponto.x][ponto.y]->doors;
+                    if(mapa->grid[ponto.x][ponto.y]->doors == NULL){
+                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                        exit(0);
+                    }
+
+                    //printf("Iniciando busca\n");
+                    while(b != NULL && exi == 0 ){
+                      //if it is last GGnode
+
+                      if( !strcmp(b->gene,"S")){
+                         //printf("Sala encontrada %s\n", ponto.genes);
+                         b->idNextRoomX = ponto.x;
+                         b->idNextRoomY = p;
+                         b->idNextRoom = mapa->grid[ponto.x][p]->id;
+                         b->idNextdoor = idl;
+                         idl = b->idDoor;
+                         exi = 1;
+
+                      }
+                      b = b->next;
+                   }
+
+                    // Fixando somento o ultimo Door iD
+                    a = mapa->grid[ponto.x][p]->doors;
+                    if(mapa->grid[ponto.x][p]->doors == NULL){
+                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                        exit(0);
+                    }
+                    exi = 0;
+                    //printf("Iniciando busca\n");
+                    while(a != NULL && a->idDoor && exi == 0 ){
+                      //if it is last GGnode
+
+
+                      if( !strcmp(a->gene, "N")){
+                        //printf("Sala encontrada %s\n", geneSala);
+                         a->idNextdoor = idl;
+                         exi = 1;
+
+                      }
+                      a = a->next;
+                   }
+
+                }
+
+                }
+            }
+
+            p = ponto.y -1;
+
+            if(p != ponto.y && p > 0){
+                if(mapa->grid[ponto.x][p]->id != 0)
+                {
+                    if((strstr(mapa->grid[ponto.x][p]->gene, "S")!= NULL) && (strstr(mapa->grid[ponto.x][ponto.y]->gene, "N")!= NULL)){
+                        a = mapa->grid[ponto.x][p]->doors;
+                        if(mapa->grid[ponto.x][p]->doors == NULL){
+                            //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                                exit(0);
+                        }
                     exi = 0;
                     //printf("Iniciando busca\n");
                     while(a != NULL && a->idDoor && exi == 0 ){
@@ -886,251 +1159,6 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
 
                       if( !strcmp(b->gene,"N")){
                          //printf("Sala encontrada %s\n", ponto.genes);
-                         b->idNextRoomX = p;
-                         b->idNextRoomY = ponto.y;
-                         b->idNextRoom = mapa->grid[p][ponto.y]->id;
-                         b->idNextdoor = idl;
-                         idl = b->idDoor;
-                         exi = 1;
-
-                      }
-                      b = b->next;
-                   }
-
-                    // Fixando somento o ultimo Door iD
-                    a = mapa->grid[p][ponto.y]->doors;
-                    if(mapa->grid[p][ponto.y]->doors == NULL){
-                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
-                        exit(0);
-                    }
-                    exi = 0;
-                    //printf("Iniciando busca\n");
-                    while(a != NULL && a->idDoor && exi == 0 ){
-                      //if it is last GGnode
-
-
-                      if( !strcmp(a->gene,geneSala)){
-                        //printf("Sala encontrada %s\n", geneSala);
-                         a->idNextdoor = idl;
-                         exi = 1;
-
-                      }
-                      a = a->next;
-                   }
-
-                }
-            }
-            }
-
-            p = ponto.x - 1;
-            if(!(p == x && ponto.y == y) && p > 0){
-                if(mapa->grid[p][ponto.y]->id != 0)
-                {
-                    if((strstr(mapa->grid[p][ponto.y]->gene, "N")!= NULL) && (strstr(mapa->grid[ponto.x][ponto.y]->gene, "S")!= NULL)){
-
-                    a = mapa->grid[p][ponto.y]->doors;
-                    if(mapa->grid[p][ponto.y]->doors == NULL){
-                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
-                        exit(0);
-                    }
-                    exi = 0;
-                    //printf("Iniciando busca\n");
-                    while(a != NULL && a->idDoor && exi == 0 ){
-                      //if it is last GGnode
-
-
-                      if( !strcmp(a->gene,"N")){
-                        //printf("Sala encontrada %s\n", geneSala);
-                         a->idNextRoomX = ponto.x;
-                         a->idNextRoomY = ponto.y;
-                         a->idNextRoom =  mapa->grid[ponto.x][ponto.y]->id;
-                         //printf("Fixados pontos\n");
-                         idl = a->idDoor;
-                         exi = 1;
-
-                      }
-                      a = a->next;
-                        }
-
-                    //printf("Fixando portas sala sorteada\n");
-                    i = 0;
-                    exi = 0;
-                    b = mapa->grid[ponto.x][ponto.y]->doors;
-                    if(mapa->grid[ponto.x][ponto.y]->doors == NULL){
-                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
-                        exit(0);
-                    }
-
-                    //printf("Iniciando busca\n");
-                    while(b != NULL && exi == 0 ){
-                      //if it is last GGnode
-
-                      if( !strcmp(b->gene,"S")){
-                         //printf("Sala encontrada %s\n", ponto.genes);
-                         b->idNextRoomX = p;
-                         b->idNextRoomY = ponto.y;
-                         b->idNextRoom = mapa->grid[p][ponto.y]->id;
-                         b->idNextdoor = idl;
-                         idl = b->idDoor;
-                         exi = 1;
-
-                      }
-                      b = b->next;
-                   }
-
-                    // Fixando somento o ultimo Door iD
-                    a = mapa->grid[p][ponto.y]->doors;
-                    if(mapa->grid[p][ponto.y]->doors == NULL){
-                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
-                        exit(0);
-                    }
-                    exi = 0;
-                    //printf("Iniciando busca\n");
-                    while(a != NULL && a->idDoor && exi == 0 ){
-                      //if it is last GGnode
-
-
-                      if( !strcmp(a->gene,geneSala)){
-                        //printf("Sala encontrada %s\n", geneSala);
-                         a->idNextdoor = idl;
-                         exi = 1;
-
-                      }
-                      a = a->next;
-                   }
-
-                }
-
-            }
-            }
-
-            p = ponto.y +1;
-
-            if(!(ponto.x == x && p == y )  && p < (map->width-1)){
-                if(mapa->grid[ponto.x][p]->id != 0)
-                {
-                    if((strstr(mapa->grid[ponto.x][p]->gene, "O")!= NULL) && (strstr(mapa->grid[ponto.x][ponto.y]->gene, "L")!= NULL)){
-                    a = mapa->grid[ponto.x][p]->doors;
-                    if(mapa->grid[ponto.x][p]->doors == NULL){
-                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
-                        exit(0);
-                    }
-                    exi = 0;
-                    //printf("Iniciando busca\n");
-                    while(a != NULL && a->idDoor && exi == 0 ){
-                      //if it is last GGnode
-
-
-                      if( !strcmp(a->gene,"O")){
-                        //printf("Sala encontrada %s\n", geneSala);
-                         a->idNextRoomX = ponto.x;
-                         a->idNextRoomY = ponto.y;
-                         a->idNextRoom =  mapa->grid[ponto.x][ponto.y]->id;
-                         //printf("Fixados pontos\n");
-                         idl = a->idDoor;
-                         exi = 1;
-
-                      }
-                      a = a->next;
-                   }
-
-                    //printf("Fixando portas sala sorteada\n");
-                    i = 0;
-                    exi = 0;
-                    b = mapa->grid[ponto.x][ponto.y]->doors;
-                    if(mapa->grid[ponto.x][ponto.y]->doors == NULL){
-                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
-                        exit(0);
-                    }
-
-                    //printf("Iniciando busca\n");
-                    while(b != NULL && exi == 0 ){
-                      //if it is last GGnode
-
-                      if( !strcmp(b->gene,"L")){
-                         //printf("Sala encontrada %s\n", ponto.genes);
-                         b->idNextRoomX = ponto.x;
-                         b->idNextRoomY = p;
-                         b->idNextRoom = mapa->grid[ponto.x][p]->id;
-                         b->idNextdoor = idl;
-                         idl = b->idDoor;
-                         exi = 1;
-
-                      }
-                      b = b->next;
-                   }
-
-                    // Fixando somento o ultimo Door iD
-                    a = mapa->grid[ponto.x][p]->doors;
-                    if(mapa->grid[ponto.x][p]->doors == NULL){
-                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
-                        exit(0);
-                    }
-                    exi = 0;
-                    //printf("Iniciando busca\n");
-                    while(a != NULL && a->idDoor && exi == 0 ){
-                      //if it is last GGnode
-
-
-                      if( !strcmp(a->gene,geneSala)){
-                        //printf("Sala encontrada %s\n", geneSala);
-                         a->idNextdoor = idl;
-                         exi = 1;
-
-                      }
-                      a = a->next;
-                   }
-
-                }
-
-                }
-            }
-
-            p = ponto.y -1;
-
-            if(!(ponto.x == x && p == y )&& p > 0){
-                if(mapa->grid[ponto.x][p]->id != 0)
-                {
-                    if((strstr(mapa->grid[ponto.x][p]->gene, "L")!= NULL) && (strstr(mapa->grid[p][ponto.y]->gene, "O")!= NULL)){
-                    a = mapa->grid[ponto.x][p]->doors;
-                    if(mapa->grid[ponto.x][p]->doors == NULL){
-                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
-                        exit(0);
-                    }
-                    exi = 0;
-                    //printf("Iniciando busca\n");
-                    while(a != NULL && a->idDoor && exi == 0 ){
-                      //if it is last GGnode
-
-
-                      if( !strcmp(a->gene,"L")){
-                        //printf("Sala encontrada %s\n", geneSala);
-                         a->idNextRoomX = ponto.x;
-                         a->idNextRoomY = ponto.y;
-                         a->idNextRoom =  mapa->grid[ponto.x][ponto.y]->id;
-                         //printf("Fixados pontos\n");
-                         idl = a->idDoor;
-                         exi = 1;
-
-                      }
-                      a = a->next;
-                   }
-
-                    //printf("Fixando portas sala sorteada\n");
-                    i = 0;
-                    exi = 0;
-                    b = mapa->grid[ponto.x][ponto.y]->doors;
-                    if(mapa->grid[ponto.x][ponto.y]->doors == NULL){
-                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
-                        exit(0);
-                    }
-                    //printDoorList(ponto.x, ponto.y);
-                    //printf("Iniciando busca\n");
-                    while(b != NULL && exi == 0 ){
-                      //if it is last GGnode
-
-                      if( !strcmp(b->gene,"O")){
-                         //printf("Sala encontrada %s\n", ponto.genes);
                          b->idNextRoomX = ponto.x;
                          b->idNextRoomY = p;
                          b->idNextRoom = mapa->grid[ponto.x][ponto.y-1]->id;
@@ -1154,7 +1182,7 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
                       //if it is last GGnode
 
 
-                      if( !strcmp(a->gene,geneSala)){
+                      if( !strcmp(a->gene,"S")){
                         //printf("Sala encontrada %s\n", geneSala);
                          a->idNextdoor = idl;
                          exi = 1;
@@ -1213,6 +1241,8 @@ GmPonto varremapapor(GPGenetic_Map *mapa, GmPonto ponto){
                     ponto.x = i;
                     ponto.y = j;
                     return ponto;
+                }else{
+                    mapa->grid[i][j]->alldoorsocupped = 1;
                 }
 
 
@@ -1243,8 +1273,19 @@ GmPonto discartmap(GPGenetic_Map *mapa, GmPonto ponto){
 
         }
     }
-    int startX = PMrand()%map->height;
-    int starty = PMrand()%map->width;
+    int startX = PMrand()%(map->height - 1);
+    if(startX == 0)
+        startX++;
+
+    if(startX == (map->height - 1) )
+        startX--;
+
+    int starty = PMrand()%(map->width - 1);
+    if(starty == 0)
+        starty++;
+    if(starty == (map->width- 1) )
+        starty--;
+
     i =(PMrand()%10)+1;
     GMRoom* res = malloc(sizeof(GMRoom));
     res = seach(i, head);
@@ -1620,7 +1661,7 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPR
 		}
 		tx = ponto.x + 1;
 		test= mapa->height-1;
-		if(tx>test){
+		if(tx>=test){
 		    i++;
           //  printf("Porta O invalida encontrada\n");
             curren = DeleteAllG("L", curren);
@@ -1633,7 +1674,7 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPR
 		}
 		tx = ponto.y + 1;
 		test = mapa->width-1;
-		if( tx > test){
+		if( tx >= test){
             i++;
           //  printf("Porta S invalida encontrada\n");
             curren = DeleteAllG("S", curren);
@@ -1642,8 +1683,9 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPR
 	   //remove sala que vão causar conflito
         // Pegando as informaçãos das salas laterais do ponto
         int id1,id2,id3, id4;
-        if((ponto.x+1) < (mapa->width-1)){
-            tx = ponto.x + 1;
+        tx = ponto.x + 1;
+        if(tx < (mapa->width-1)){
+
             if(mapa->grid[tx][ponto.y]->id != 0){
                id1 = mapa->grid[tx][ponto.y]->id;
             }else{
@@ -1653,9 +1695,9 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPR
         }else{
             id1 = 0;
         }
+        tx = ponto.x -1;
+        if(tx > 0 ){
 
-        if((ponto.x-1) > 0 ){
-            tx = ponto.x -1;
             if(mapa->grid[tx][ponto.y]->id != 0){
                id2 = mapa->grid[tx][ponto.y]->id;
             }else{
@@ -1667,8 +1709,9 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPR
             id2 = 0;
         }
 
-        if((ponto.y+1) < (mapa->width-1)){
-            ty = ponto.y +1;
+        ty = ponto.y +1;
+        if( ty < (mapa->width-1)){
+
 
             if(mapa->grid[ponto.x][ty]->id != 0){
                id3 = mapa->grid[ponto.x][ty]->id;
@@ -1681,8 +1724,9 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPR
             id3 = 0;
         }
 
-        if((ponto.y-1) > 0){
-            ty = ponto.y -1;
+        ty = ponto.y-1;
+        if(ty > 0){
+
              if(mapa->grid[ponto.x][ty]->id != 0){
                id4 = mapa->grid[ponto.x][ty]->id;
             }else{
@@ -1698,10 +1742,10 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPR
         if(id1 != 0){
             tx = ponto.x+1;
             if( tx != x){
-                if(strstr(mapa->grid[tx][ponto.y]->gene,"L") != NULL){
+                if(strstr(mapa->grid[tx][ponto.y]->gene,"O") != NULL){
                //     printf("Porta O Conflitante encontrada\n");
                         i++;
-                        curren = DeleteOffG("O", curren);
+                        curren = DeleteOffG("L", curren);
                 }else{
                         i++;
                         curren = DeleteAllG("L", curren);
@@ -1713,10 +1757,10 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPR
         if(id2 != 0){
             tx = ponto.x-1;
             if( tx != x){
-                if(strstr(mapa->grid[tx][ponto.y]->gene,"O") != NULL){
+                if(strstr(mapa->grid[tx][ponto.y]->gene,"L") != NULL){
                //     printf("Porta O Conflitante encontrada\n");
                     i++;
-                    curren = DeleteOffG("L", curren);
+                    curren = DeleteOffG("O", curren);
                 }else{
                         i++;
                         curren = DeleteAllG("O", curren);
@@ -1728,10 +1772,10 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPR
         if(id3 != 0){
             ty = ponto.y+1;
             if(ty != y){
-                if(strstr(mapa->grid[ponto.x][ty]->gene,"S") != NULL){
+                if(strstr(mapa->grid[ponto.x][ty]->gene,"N") != NULL){
                //     printf("Porta O Conflitante encontrada\n");
                     i++;
-                    curren = DeleteOffG("N", curren);
+                    curren = DeleteOffG("S", curren);
                 }else{
                         i++;
                         curren = DeleteAllG("S", curren);
@@ -1743,10 +1787,10 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPR
         if(id4 != 0){
             ty = ponto.y-1;
             if( ty != y){
-                if(strstr(mapa->grid[ponto.x][ty]->gene,"N") != NULL){
+                if(strstr(mapa->grid[ponto.x][ty]->gene, "S" ) != NULL){
                //     printf("Porta O Conflitante encontrada\n");
                     i++;
-                    curren = DeleteOffG("S", curren);
+                    curren = DeleteOffG("N", curren);
                 }else{
                     i++;
                     curren = DeleteAllG("N", curren);
@@ -1823,13 +1867,23 @@ GPRoomList* DeleteAllG(char *key, GPRoomList*head){ // delete al intance the one
       if(strstr(curren->room->gene, key) != NULL){
         if(curren == head) {
           //change first to point to next link
-          previous = curren;
-          curren = curren->next;
+          if(curren->next != NULL){
+            head = head->next;
+            curren = head;
+          }
+          else{
+            head = NULL;
+            curren = head;
+          }
+
        }else {
           //bypass the current link
-          previous->next = curren->next;
+          //previous->next = curren->next;
+            if(curren->next != NULL) previous->next = curren->next;
+            else previous->next = NULL;
 
-          curren = curren->next;
+             curren = curren->next;
+
        }
       }else {
          //store reference to current link
@@ -1840,13 +1894,7 @@ GPRoomList* DeleteAllG(char *key, GPRoomList*head){ // delete al intance the one
 
    }
 
-   //found a match, update the link
-
-
-
-
-
-   return previous;
+   return head;
 }
 
 GPRoomList* DeleteOffG(char *key, GPRoomList *head){ // delete intances in case not encontre one type especifc gene
@@ -1889,14 +1937,22 @@ GPRoomList* DeleteOffG(char *key, GPRoomList *head){ // delete intances in case 
       if(strstr(curren->room->gene, key) == NULL){
         if(curren == head) {
           //change first to point to next link
-          previous = curren;
-          curren = curren->next;
+          if(curren->next != NULL){
+            head = head->next;
+            curren = head;
+          }
+          else{
+            head = NULL;
+            curren = head;
+          }
 
        }else {
           //bypass the current link
-          previous->next = curren->next;
-          curren = curren->next;
+          //previous->next = curren->next;
+            if(curren->next != NULL) previous->next = curren->next;
+            else previous->next = NULL;
 
+            curren = curren->next;
        }
       }else {
          //store reference to current link
@@ -1913,7 +1969,7 @@ GPRoomList* DeleteOffG(char *key, GPRoomList *head){ // delete intances in case 
 
 
 
-   return previous;
+   return head;
 
 }
 
@@ -2112,21 +2168,21 @@ void print_genetic_grid(GPGenetic_Map *map){
 
     		switch(j/width){
     			case 0:	//	 Linha 1
-    				printf(" ");
-    				map->grid[j%width][i]->id != 0 && strstr(map->grid[j%width][i]->gene, "N") != NULL ? printf("|") : printf(" ");
-    				printf(" ");
+    				printf("  ");
+    				map->grid[j%width][i]->id != 0 && strstr(map->grid[j%width][i]->gene, "N") != NULL ? printf("||") : printf("  ");
+    				printf("  ");
 
     			break;
     			case 1:	//	 Linha 2
 
-    				map->grid[j%width][i]->id != 0 && strstr(map->grid[j%width][i]->gene, "O") != NULL ? printf("-") : printf(" ");
-    				map->grid[j%width][i]->id == 0 ? printf(" ") : printf("%d", map->grid[j%width][i]->id);
-    				map->grid[j%width][i]->id != 0 && strstr(map->grid[j%width][i]->gene, "L") != NULL  ? printf("-") : printf(" ");
+    				map->grid[j%width][i]->id != 0 && strstr(map->grid[j%width][i]->gene, "O") != NULL ? printf("--") : printf("  ");
+    				map->grid[j%width][i]->id == 0 ? printf("  ") : printf("%02d", map->grid[j%width][i]->id);
+    				map->grid[j%width][i]->id != 0 && strstr(map->grid[j%width][i]->gene, "L") != NULL  ? printf("--") : printf("  ");
     			break;
     			case 2:	//	 Linha 3
-    				printf(" ");
-    				map->grid[j%width][i]->id != 0 && strstr(map->grid[j%width][i]->gene, "S") != NULL ? printf("|") : printf(" ");
-    				printf(" ");
+    				printf("  ");
+    				map->grid[j%width][i]->id != 0 && strstr(map->grid[j%width][i]->gene, "S") != NULL ? printf("||") : printf("  ");
+    				printf("  ");
     			break;
     		}
     		if(j%width == width - 1) printf("|\n");
