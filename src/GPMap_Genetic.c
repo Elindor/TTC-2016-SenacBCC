@@ -870,7 +870,7 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
             //verificando    salas ao redor!
             int p = ponto.x + 1;
 
-            if(p != ponto.x && p < (map->height-1) ){
+            if(p != ponto.x && p < (map->height) ){
                 if(mapa->grid[p][ponto.y]->id != 0)
                 {
                     if((strstr(mapa->grid[p][ponto.y]->gene, "O")!= NULL) && (strstr(mapa->grid[ponto.x][ponto.y]->gene, "L")!= NULL)){
@@ -1034,7 +1034,7 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
 
             p = ponto.y +1;
 
-            if(p != ponto.y  && p < (map->width-1)){
+            if(p != ponto.y  && p < (map->width)){
                 if(mapa->grid[ponto.x][p]->id != 0)
                 {
                     if((strstr(mapa->grid[ponto.x][p]->gene, "N")!= NULL) && (strstr(mapa->grid[ponto.x][ponto.y]->gene, "S")!= NULL)){
@@ -1684,7 +1684,7 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPR
         // Pegando as informaçãos das salas laterais do ponto
         int id1,id2,id3, id4;
         tx = ponto.x + 1;
-        if(tx < (mapa->width-1)){
+        if(tx < (mapa->width)){
 
             if(mapa->grid[tx][ponto.y]->id != 0){
                id1 = mapa->grid[tx][ponto.y]->id;
@@ -1710,7 +1710,7 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPR
         }
 
         ty = ponto.y +1;
-        if( ty < (mapa->width-1)){
+        if( ty < (mapa->width)){
 
 
             if(mapa->grid[ponto.x][ty]->id != 0){
