@@ -46,7 +46,7 @@ typedef struct _room{
 	int height;
 	int width;
 	int chance;
-	GMTile **mapIntern;
+	int *mapIntern;
 	char *gene;	// N L S O
 
 	//definicao para mapas

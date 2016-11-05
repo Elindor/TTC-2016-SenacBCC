@@ -34,14 +34,21 @@
 		"Name": "Norte",
 		"Id": 1,
 		"Tam": 1,
-		"Width": 3,
-		"Height": 3,
+		"Width": 5,
+		"Height": 5,
 		"Chance": 10,
-	
+		"Map": [          
+                0,0,2,0,0,
+                0,1,1,1,0,
+                0,1,1,1,0,
+                0,1,1,1,0,
+                0,0,0,0,0
+            ],
+
 		"Gene": "N",
 		"Doors": [{
 			"Id": 1,
-			"Width": 1,
+			"Width": 2,
 			"Height": 0,
 			"Gene": "N"
 		}]
@@ -49,195 +56,269 @@
 		"Name": "Sul",
 		"Id": 2,
 		"Tam": 1,
-		"Width": 3,
-		"Height": 3,
+		"Width": 5,
+		"Height": 5,
 		"Chance": 10,
+		"Map": [          
+                0,0,0,0,0,
+                0,1,1,1,0,
+                0,1,1,1,0,
+                0,1,1,1,0,
+                0,0,2,0,0
+            ],
 
 		"Gene": "S",
 		"Doors": [{
 			"Id": 1,
-			"Width": 1,
-			"Height": 2,
+			"Width": 2,
+			"Height": 4,
 			"Gene": "S"
 		}]
 	}, {
 		"Name": "Leste",
 		"Id": 3,
 		"Tam": 1,
-		"Width": 3,
-		"Height": 3,
+		"Width": 5,
+		"Height": 5,
 		"Chance": 10,
-	
+		"Map": [          
+                0,0,0,0,0,
+                0,1,1,1,0,
+                0,1,1,1,2,
+                0,1,1,1,0,
+                0,0,0,0,0
+            ],
+
 		"Gene": "L",
 		"Doors": [{
 			"Id": 1,
-			"Width": 2,
-			"Height": 1,
+			"Width": 4,
+			"Height": 2,
 			"Gene": "L"
 		}]
 	}, {
-		"Name": "Leste",
+		"Name": "Oeste",
 		"Id": 4,
 		"Tam": 1,
-		"Width": 3,
-		"Height": 3,
+		"Width": 5,
+		"Height": 5,
 		"Chance": 10,
-	
+		"Map": [          
+                0,0,0,0,0,
+                0,1,1,1,0,
+                2,1,1,1,0,
+                0,1,1,1,0,
+                0,0,0,0,0
+            ],
+
 		"Gene": "O",
 		"Doors": [{
 			"Id": 1,
 			"Width": 0,
-			"Height": 1,
+			"Height": 2,
 			"Gene": "O"
 		}]
 	}, {
 		"Name": "Norte-SUl",
 		"Id": 5,
 		"Tam": 1,
-		"Width": 3,
-		"Height": 3,
+		"Width": 5,
+		"Height": 5,
 		"Chance": 20,
+		"Map": [          
+                0,0,2,0,0,
+                0,1,1,1,0,
+                0,1,1,1,0,
+                0,1,1,1,0,
+                0,0,2,0,0
+            ],
 
 		"Gene": "NS",
 		"Doors": [{
 			"Id": 1,
-			"Width": 1,
+			"Width": 2,
 			"Height": 0,
 			"Gene": "N"
 		}, {
 			"Id": 2,
-			"Width": 1,
-			"Height": 2,
+			"Width": 2,
+			"Height": 4,
 			"Gene": "S"
 		}]
 	}, {
 		"Name": "Leste-Oeste",
 		"Id": 6,
 		"Tam": 1,
-		"Width": 3,
-		"Height": 3,
+		"Width": 5,
+		"Height": 5,
 		"Chance": 20,
+		"Map": [          
+                0,0,0,0,0,
+                0,1,1,1,0,
+                2,1,1,1,2,
+                0,1,1,1,0,
+                0,0,0,0,0
+            ],
+
 
 		"Gene": "LO",
 		"Doors": [{
 			"Id": 1,
-			"Width": 2,
-			"Height": 1,
+			"Width": 4,
+			"Height": 2,
 			"Gene": "L"
 		}, {
 			"Id": 2,
 			"Width": 0,
-			"Height": 1,
+			"Height": 2,
 			"Gene": "O"
 		}]
 	}, {
 		"Name": "Norte-Oeste",
 		"Id": 7,
 		"Tam": 1,
-		"Width": 3,
-		"Height": 3,
+		"Width": 5,
+		"Height": 5,
 		"Chance": 20,
-		
+		"Map": [          
+                0,0,2,0,0,
+                0,1,1,1,0,
+                2,1,1,1,0,
+                0,1,1,1,0,
+                0,0,0,0,0
+            ],
+
+
 		"Gene": "NO",
 		"Doors": [{
 			"Id": 1,
-			"Width": 1,
+			"Width": 2,
 			"Height": 0,
 			"Gene": "N"
 		}, {
 			"Id": 2,
 			"Width": 0,
-			"Height": 1,
+			"Height": 2,
 			"Gene": "O"
 		}]
 	}, {
-		"Name": "Norte-Leste",
+		"Name": "Noret-Leste",
 		"Id": 8,
 		"Tam": 1,
-		"Width": 3,
-		"Height": 3,
+		"Width": 5,
+		"Height": 5,
 		"Chance": 20,
-		
+		"Map": [          
+                0,0,2,0,0,
+                0,1,1,1,0,
+                0,1,1,1,2,
+                0,1,1,1,0,
+                0,0,0,0,0
+            ],
+
 		"Gene": "NL",
 		"Doors": [{
 			"Id": 1,
-			"Width": 1,
+			"Width": 2,
 			"Height": 0,
 			"Gene": "N"
 		}, {
 			"Id": 2,
-			"Width": 2,
-			"Height": 1,
+			"Width": 4,
+			"Height": 2,
 			"Gene": "L"
 		}]
 	}, {
 		"Name": "Sul-Oeste",
 		"Id": 9,
 		"Tam": 1,
-		"Width": 3,
-		"Height": 3,
+		"Width": 5,
+		"Height": 5,
 		"Chance": 20,
-		
+		"Map": [          
+                0,0,0,0,0,
+                0,1,1,1,0,
+                2,1,1,1,0,
+                0,1,1,1,0,
+                0,0,2,0,0
+            ],
+
+
 		"Gene": "SO",
 		"Doors": [{
 			"Id": 1,
-			"Width": 1,
-			"Height": 0,
+			"Width": 2,
+			"Height": 4,
 			"Gene": "S"
 		}, {
 			"Id": 1,
 			"Width": 0,
-			"Height": 1,
+			"Height": 2,
 			"Gene": "O"
 		}]
 	}, {
 		"Name": "SUl-leste",
 		"Id": 10,
 		"Tam": 1,
-		"Width": 3,
-		"Height": 3,
+		"Width": 5,
+		"Height": 5,
 		"Chance": 20,
+		"Map": [          
+                0,0,0,0,0,
+                0,1,1,1,0,
+                0,1,1,1,2,
+                0,1,1,1,0,
+                0,0,2,0,0
+            ],
 
 		"Gene": "LS",
 		"Doors": [{
 			"Id": 1,
-			"Width": 2,
-			"Height": 1,
+			"Width": 4,
+			"Height": 2,
 			"Gene": "L"
 		}, {
 			"Id": 2,
-			"Width": 1,
-			"Height": 2,
+			"Width": 2,
+			"Height": 4,
 			"Gene": "S"
 		}]
 	}, {
 		"Name": "Trevo",
 		"Id": 11,
 		"Tam": 1,
-		"Width": 3,
-		"Height": 3,
+		"Width": 5,
+		"Height": 5,
 		"Chance": 35,
+		"Map": [          
+                0,0,2,0,0,
+                0,1,1,1,0,
+                2,1,1,1,2,
+                0,1,1,1,0,
+                0,0,2,0,0
+            ],
+
 
 		"Gene": "NOLS",
 		"Doors": [{
 			"Id": 1,
-			"Width": 2,
-			"Height": 1,
+			"Width": 4,
+			"Height": 2,
 			"Gene": "L"
 		}, {
 			"Id": 2,
-			"Width": 1,
-			"Height": 2,
+			"Width": 2,
+			"Height": 4,
 			"Gene": "S"
 		}, {
 			"Id": 3,
-			"Width": 1,
+			"Width": 2,
 			"Height": 0,
 			"Gene": "N"
 		}, {
 			"Id": 4,
 			"Width": 0,
-			"Height": 1,
+			"Height": 2,
 			"Gene": "O"
 		}]
 	}]

@@ -5,6 +5,7 @@ GPRoomList *current;
 GMRoomContent *content;
 GMAutomataContent *content1;
 static GPGenetic_Map *map;
+int currGrid;
 
 int  tentativas;
 
@@ -95,7 +96,7 @@ static void process_genetic_content_array(json_value* value, int depth)
             b->next = a;
             tile->scatter = b;
         }
-        if(generatingDoor){
+        else if(generatingDoor){
             if(content->first->doors == NULL){
                 GMDoor *a = malloc(sizeof(GMDoor));
                 a->next = NULL;
@@ -108,23 +109,30 @@ static void process_genetic_content_array(json_value* value, int depth)
             }
 
         }
-        if(generatingIncompaentrade){
+        else if(generatingIncompaentrade){
             GmCrossover *a = content->first->incompativeEntrad;
             GmCrossover *b = malloc(sizeof(GmCrossover));
             b->next = a;
             content->first->incompativeEntrad = b;
         }
-        if(generatingIncompaexit){
+        else if(generatingIncompaexit){
             GmCrossover *a = content->first->incompative;
             GmCrossover *b = malloc(sizeof(GmCrossover));
             b->next = a;
             content->first->incompative = b;
         }
-        if(generatingCompati){
+        else if(generatingCompati){
             GmCrossover *a = content->first->compativeExit;
             GmCrossover *b = malloc(sizeof(GmCrossover));
             b->next = a;
             content->first->compativeExit = b;
+        }
+        else if(generatingMap){
+                int w = content->first->width;
+                int h = content->first->height;
+                content->first->mapIntern = malloc(w * h * sizeof(int*));
+                content->first->mapIntern[0] = 0;
+                currGrid = 0;
         }
 
         process_genetic_content_value(value->u.array.values[x], depth, NULL);
@@ -308,6 +316,11 @@ static void process_genetic_content_value(json_value* value, int depth, char* na
                     t->idDoor = (int)value->u.integer;
                     t->idNextdoor = 0;
                     printf("ID NEXT: %d\n", t->idNextdoor);
+                }
+                if(generatingMap){
+
+                    content->first->mapIntern[currGrid] = value->u.integer;
+                    currGrid++;
                 }
 
             }
@@ -2128,8 +2141,13 @@ void FixRoom(GPGenetic_Map *map, GmPonto ponto, int fonte){
     strcpy(map->grid[ponto.x][ponto.y]->gene,FontedeDados->gene);
 
     strncpy(map->grid[ponto.x][ponto.y]->name,FontedeDados->name,sizeof(map->grid[ponto.x][ponto.y]->name));
+    /*
+    int j = map->grid[ponto.x][ponto.y]->height  * map->grid[ponto.x][ponto.y]->width
 
-
+    for(j = 0; i < j; j++){
+        map->grid[ponto.x][ponto.y]->mapIntern[j] = FontedeDados->mapIntern[j];
+    }
+    */
     GMDoor*a = FontedeDados->doors;
     while(a != NULL){
         if(i == 0){
