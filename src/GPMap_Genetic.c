@@ -6,6 +6,8 @@ GMRoomContent *content;
 GMAutomataContent *content1;
 static GPGenetic_Map *map;
 
+int  tentativas;
+
 static void print_depth_shift(int depth)
 {
     int j;
@@ -29,7 +31,7 @@ int generatingIncompaentrade;
 int generatingCompati;
 
 static void process_genetic_content_value(json_value* value, int depth, char* name);
-
+GMRoom *getRoom (GPGenetic_Map *map, int xPosition, int yPosition);
 
 static void process_genetic_content_object(json_value* value, int depth)
 {
@@ -457,7 +459,7 @@ GPMap* generateGeneticMap(GPMap *mapa){
 
 
     int saida = 1;
-	int  tentativas = 0;
+	tentativas = 0;
 	GmPonto g;
     int x, y;
 
@@ -592,8 +594,22 @@ GPMap* generateGeneticMap(GPMap *mapa){
 
 
     head->sala = content->first;
-    int startX = 3;//PMrand()%map->height;
+    /*int startX = 3;//PMrand()%map->height;
     int starty = 3; //PMrand()%map->width;
+    */
+    int startX = PMrand()%(map->height - 1);
+    if(startX == 0)
+        startX++;
+
+    if(startX == (map->height - 1) )
+        startX--;
+
+    int starty = PMrand()%(map->width - 1);
+    if(starty == 0)
+        starty++;
+    if(starty == (map->width- 1) )
+        starty--;
+
     ////printf("Pontos inicial %d ---%d\n", startX,starty);
     x = startX;
 	g.x = startX;
@@ -693,7 +709,7 @@ GPMap* generateGeneticMap(GPMap *mapa){
                 if(g.x == -1)
                 {
                     tentativas++;
-                    if(tentativas < 5){
+                    if(tentativas < 20){
                         g = discartmap(map, g);
                     }else{
                         printf("Numero limite de tentativas e descarte atingido\n");
@@ -708,8 +724,11 @@ GPMap* generateGeneticMap(GPMap *mapa){
                         if(g.x != -1)
                         {
                             tentativas++;
-                            if(tentativas < 5){
+                            if(tentativas < 20){
                                 g = discartmap(map, g);
+                                startX = g.x;
+                                starty = g.y;
+
                             }else{
                                 printf("Numero limite de tentativas e descarte atingido\n");
                                 saida = 0;
@@ -738,8 +757,11 @@ GPMap* generateGeneticMap(GPMap *mapa){
                 if(con == 0  || con == 3)
                 {
                     tentativas++;
-                    if(tentativas < 5){
+                    if(tentativas < 20){
                         g = discartmap(map, g);
+                        startX = g.x;
+                        starty = g.y;
+
                     }else{
                         printf("Numero limite de tentativas e descarte atingido\n");
                         saida = 0;
@@ -798,7 +820,7 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
 
             a = mapa->grid[x][y]->doors;
             if(mapa->grid[x][y]->doors == NULL){
-                //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
                 exit(0);
             }
 
@@ -825,7 +847,7 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
             exi = 0;
             b = mapa->grid[ponto.x][ponto.y]->doors;
             if(mapa->grid[ponto.x][ponto.y]->doors == NULL){
-                //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
                 exit(0);
             }
             printDoorList(ponto.x, ponto.y);
@@ -849,7 +871,7 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
             // Fixando somento o ultimo Door iD
              a = mapa->grid[x][y]->doors;
             if(mapa->grid[x][y]->doors == NULL){
-                //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
                 exit(0);
             }
             exi = 0;
@@ -877,7 +899,7 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
 
                     a = mapa->grid[p][ponto.y]->doors;
                     if(mapa->grid[p][ponto.y]->doors == NULL){
-                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                        printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
                         exit(0);
                     }
                     exi = 0;
@@ -904,7 +926,7 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
                     exi = 0;
                     b = mapa->grid[ponto.x][ponto.y]->doors;
                     if(mapa->grid[ponto.x][ponto.y]->doors == NULL){
-                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                        printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
                         exit(0);
                     }
                     //printDoorList(ponto.x, ponto.y);
@@ -928,7 +950,7 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
                     // Fixando somento o ultimo Door iD
                     a = mapa->grid[p][ponto.y]->doors;
                     if(mapa->grid[p][ponto.y]->doors == NULL){
-                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                        printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
                         exit(0);
                     }
                     exi = 0;
@@ -951,14 +973,14 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
             }
 
             p = ponto.x - 1;
-            if(p!= ponto.x  && p > 0){
+            if(p!= ponto.x  && p >= 0){
                 if(mapa->grid[p][ponto.y]->id != 0)
                 {
                     if((strstr(mapa->grid[p][ponto.y]->gene, "L")!= NULL) && (strstr(mapa->grid[ponto.x][ponto.y]->gene, "O")!= NULL)){
 
                     a = mapa->grid[p][ponto.y]->doors;
                     if(mapa->grid[p][ponto.y]->doors == NULL){
-                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                        printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
                         exit(0);
                     }
                     exi = 0;
@@ -985,7 +1007,7 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
                     exi = 0;
                     b = mapa->grid[ponto.x][ponto.y]->doors;
                     if(mapa->grid[ponto.x][ponto.y]->doors == NULL){
-                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                        printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
                         exit(0);
                     }
 
@@ -1009,7 +1031,7 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
                     // Fixando somento o ultimo Door iD
                     a = mapa->grid[p][ponto.y]->doors;
                     if(mapa->grid[p][ponto.y]->doors == NULL){
-                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                        printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
                         exit(0);
                     }
                     exi = 0;
@@ -1040,7 +1062,7 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
                     if((strstr(mapa->grid[ponto.x][p]->gene, "N")!= NULL) && (strstr(mapa->grid[ponto.x][ponto.y]->gene, "S")!= NULL)){
                     a = mapa->grid[ponto.x][p]->doors;
                     if(mapa->grid[ponto.x][p]->doors == NULL){
-                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                        printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
                         exit(0);
                     }
                     exi = 0;
@@ -1067,7 +1089,7 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
                     exi = 0;
                     b = mapa->grid[ponto.x][ponto.y]->doors;
                     if(mapa->grid[ponto.x][ponto.y]->doors == NULL){
-                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                        printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
                         exit(0);
                     }
 
@@ -1091,7 +1113,7 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
                     // Fixando somento o ultimo Door iD
                     a = mapa->grid[ponto.x][p]->doors;
                     if(mapa->grid[ponto.x][p]->doors == NULL){
-                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                        printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
                         exit(0);
                     }
                     exi = 0;
@@ -1116,13 +1138,13 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
 
             p = ponto.y -1;
 
-            if(p != ponto.y && p > 0){
+            if(p != ponto.y && p >= 0){
                 if(mapa->grid[ponto.x][p]->id != 0)
                 {
                     if((strstr(mapa->grid[ponto.x][p]->gene, "S")!= NULL) && (strstr(mapa->grid[ponto.x][ponto.y]->gene, "N")!= NULL)){
                         a = mapa->grid[ponto.x][p]->doors;
                         if(mapa->grid[ponto.x][p]->doors == NULL){
-                            //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                            printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
                                 exit(0);
                         }
                     exi = 0;
@@ -1149,7 +1171,7 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
                     exi = 0;
                     b = mapa->grid[ponto.x][ponto.y]->doors;
                     if(mapa->grid[ponto.x][ponto.y]->doors == NULL){
-                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                        printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
                         exit(0);
                     }
                     //printDoorList(ponto.x, ponto.y);
@@ -1173,7 +1195,7 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
                     // Fixando somento o ultimo Door iD
                     a = mapa->grid[ponto.x][p]->doors;
                     if(mapa->grid[ponto.x][p]->doors == NULL){
-                        //printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
+                        printf("Starting mapa->grid[x][y]->doors is NULL at fixDoor\n");
                         exit(0);
                     }
                     exi = 0;
@@ -1262,38 +1284,41 @@ GmPonto varremapapor(GPGenetic_Map *mapa, GmPonto ponto){
 
 GmPonto discartmap(GPGenetic_Map *mapa, GmPonto ponto){
     int i , j;
-        for(i = 0; i < map->height; i ++){
+        for(i = 0; i < mapa->width; i ++){
 
-        for(j = 0; j < map->height; j ++){
+        for(j = 0; j < mapa->height; j ++){
+            GMRoom *old = getRoom(mapa, i, j);
+            free(old->doors);
+            free(old);
 
             GMRoom *tiler = malloc(sizeof(GMRoom));
             tiler->id = 0;
             strcpy(tiler->name,"name");
-            map->grid[i][j] = tiler;
+            tiler->doors = NULL;
+            mapa->grid[i][j] = tiler;
 
         }
     }
-    int startX = PMrand()%(map->height - 1);
+    int startX = PMrand()%(mapa->height - 1);
     if(startX == 0)
         startX++;
 
-    if(startX == (map->height - 1) )
+    if(startX == (mapa->height - 1) )
         startX--;
 
-    int starty = PMrand()%(map->width - 1);
+    int starty = PMrand()%(mapa->width - 1);
     if(starty == 0)
         starty++;
-    if(starty == (map->width- 1) )
+    if(starty == (mapa->width- 1) )
         starty--;
 
-    i =(PMrand()%10)+1;
-    GMRoom* res = malloc(sizeof(GMRoom));
-    res = seach(i, head);
-    if(res != NULL)
-        map->grid[startX][starty] = res;
+    i =(PMrand()%11) +1;
 
     ponto.x = startX;
     ponto.y = starty;
+
+    FixRoom(mapa,ponto,i);
+
 
     return ponto;
 
@@ -1365,7 +1390,7 @@ GMRoom* seach(int key, GGnode*head){
    //start from the first link
     GMRoom* curren = head->sala;
     GMRoom* a;
-    printf("buscando sala %d\n", key);
+    //printf("buscando sala %d\n", key);
    //if list is empty
     if(head == NULL)
 	{
@@ -1378,7 +1403,7 @@ GMRoom* seach(int key, GGnode*head){
 
       //if it is last GGnode
       if(curren->id == key){
-          printf("a\n");
+      //    printf("a\n");
             a = curren;
             //printf("\n\nSala inicial id: %d\nSala inicial nome: %s\nSala inicial Chance: %d\n\n", a->id, a->name, a->chance);
          return a;
@@ -1449,7 +1474,7 @@ GPRoomList* SeachCopatibility(GMRoom *atual, GPRoomList *head){
     GmCrossover* a;
 
     if(curren == NULL){
-      //  printf("b is null at search compatibility\n");
+        printf("b is null at search compatibility\n%d\n", tentativas);
         exit(0);
     }
 	while( curren != NULL)
@@ -1696,7 +1721,7 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPR
             id1 = 0;
         }
         tx = ponto.x -1;
-        if(tx > 0 ){
+        if(tx >= 0 ){
 
             if(mapa->grid[tx][ponto.y]->id != 0){
                id2 = mapa->grid[tx][ponto.y]->id;
@@ -1725,7 +1750,7 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPR
         }
 
         ty = ponto.y-1;
-        if(ty > 0){
+        if(ty >= 0){
 
              if(mapa->grid[ponto.x][ty]->id != 0){
                id4 = mapa->grid[ponto.x][ty]->id;
@@ -1982,7 +2007,7 @@ int Sort_Rooom(GPRoomList *head){
    // printf("Gerando chance global do conjunto\n");
     b = head;
     if(b == NULL){
-      //  printf("b is NULL at Sort_Room\n");
+        printf("b is NULL at Sort_Room\n");
         exit(1);
     }
     while(b != NULL)
@@ -2046,7 +2071,7 @@ GmPonto selectdoor(GMRoom *atual, int x, int y){
 //	a = atual->doors;  // Linha nunca usada, iniciado no FOR
     //printf("vou tentar ver, atual door");
     if(atual == NULL){
-      //  printf("atual->doors is NULL at selectDoor\n");
+        printf("atual->doors is NULL at selectDoor\n");
         exit(0);
     }
 
