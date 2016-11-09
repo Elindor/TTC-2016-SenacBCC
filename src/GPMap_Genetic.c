@@ -130,7 +130,7 @@ static void process_genetic_content_array(json_value* value, int depth)
         else if(generatingMap){
                 int w = content->first->width;
                 int h = content->first->height;
-                content->first->mapIntern = malloc(w * h * sizeof(int*));
+                content->first->mapIntern = malloc(w * h * sizeof *content->first->mapIntern);
                 content->first->mapIntern[0] = 0;
                 currGrid = 0;
         }
@@ -820,7 +820,7 @@ void fixdoor(GPGenetic_Map *mapa, int x, int y, GmPonto ponto){
            GMDoor *a;
            GMDoor *b;
            int i = 0, exi = 0;
-           int idl;
+           int idl = -1;
             //Fixando as portas conhechidasd
            char geneSala[4];
 
@@ -1323,6 +1323,7 @@ GmPonto discartmap(GPGenetic_Map *mapa, GmPonto ponto){
 
         }
     }
+    if(mapa->height - 1 == 0 || mapa->width - 1 == 0) exit(1);
     int startX = PMrand()%(mapa->height - 1);
     if(startX == 0)
         startX++;
@@ -2148,7 +2149,7 @@ void FixRoom(GPGenetic_Map *map, GmPonto ponto, int fonte){
     map->grid[ponto.x][ponto.y]->Tam =FontedeDados->Tam;
     map->grid[ponto.x][ponto.y]->alldoorsocupped = 0;
 
-    map->grid[ponto.x][ponto.y]->gene = malloc(sizeof(map->grid[ponto.x][ponto.y]->gene));
+    map->grid[ponto.x][ponto.y]->gene = malloc(5 * sizeof *map->grid[ponto.x][ponto.y]->gene);
     strcpy(map->grid[ponto.x][ponto.y]->gene,FontedeDados->gene);
 
     strncpy(map->grid[ponto.x][ponto.y]->name,FontedeDados->name,sizeof(map->grid[ponto.x][ponto.y]->name));
@@ -2172,7 +2173,7 @@ void FixRoom(GPGenetic_Map *map, GmPonto ponto, int fonte){
             novo->idNextRoomX = a->idNextRoomX;
             novo->idNextRoomY = a->idNextRoomY;
 
-            novo->gene = malloc(sizeof(novo->gene));
+            novo->gene = malloc(5 * sizeof *novo->gene);
             strcpy(novo->gene,a->gene);
 
             novo->next = NULL;
@@ -2191,7 +2192,7 @@ void FixRoom(GPGenetic_Map *map, GmPonto ponto, int fonte){
             novo->idNextRoomX = a->idNextRoomX;
             novo->idNextRoomY = a->idNextRoomY;
 
-            novo->gene = malloc(sizeof(novo->gene));
+            novo->gene = malloc(5 * sizeof *novo->gene);
             strcpy(novo->gene,a->gene);
 
             novo->next = map->grid[ponto.x][ponto.y]->doors;
