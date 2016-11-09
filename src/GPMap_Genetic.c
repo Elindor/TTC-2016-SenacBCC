@@ -694,29 +694,28 @@ GPMap* generateGeneticMap(GPMap *mapa){
 
             current =SeachCopatibility(res,current);
             //printf("Compartibilidades adicionadas\n Sorteando\n");
-            i = Sort_Rooom(current);
-            //printf("Fixando a sala %d no ponto %d--%d\n", i, g.x,g.y);
-            /*
-            GMRoom* res = malloc(sizeof(GMRoom));
-            res = seach(i, head);
-            if(res != NULL)
-                map->grid[g.x][g.y] = res;
-            */
-            FixRoom(map,g,i);
 
-            //printf("\nSala fixada\n");
-            ////printf("\n\nSala id: %d\nSala nome: %s\n\n", map->grid[g.x][g.y]->id, map->grid[g.x][g.y]->name);
 
-            //printf("\nFixado portas\n");
-			fixdoor(map, x,y, g); //liga as portas de ambas as salas x y e px py, identificação da sala, g identificação da porta.
-            print_genetic_grid(map);
-            //printf("\nSala e portas fixadas, reiniciando\n");
-			x = g.x;
-			y = g.y;
-            int con;
-            //printf("Vendo quanto do mapa esta preenchido\n");
-			con = ocuppedspace(map);
-            if(con == 3){
+            if( current != NULL){
+                i = Sort_Rooom(current);
+
+                FixRoom(map,g,i);
+
+                //printf("\nSala fixada\n");
+                ////printf("\n\nSala id: %d\nSala nome: %s\n\n", map->grid[g.x][g.y]->id, map->grid[g.x][g.y]->name);
+
+                //printf("\nFixado portas\n");
+                fixdoor(map, x,y, g); //liga as portas de ambas as salas x y e px py, identificação da sala, g identificação da porta.
+                print_genetic_grid(map);
+                //printf("\nSala e portas fixadas, reiniciando\n");
+                x = g.x;
+                y = g.y;
+                int con;
+                //printf("Vendo quanto do mapa esta preenchido\n");
+                con = ocuppedspace(map);
+
+
+                if(con == 3){
                 g = varremapapor(map,g);
 
                 if(g.x == -1)
@@ -753,7 +752,19 @@ GPMap* generateGeneticMap(GPMap *mapa){
 
                         }
 
+                }
+            }else{
+                tentativas++;
+                if(tentativas < 20){
+                    g = discartmap(map, g);
+                }else{
+                    printf("Numero limite de tentativas e descarte atingido\n");
+                    saida = 0;
+                }
+
+
             }
+
 
 		}else{
 
@@ -1488,7 +1499,7 @@ GPRoomList* SeachCopatibility(GMRoom *atual, GPRoomList *head){
 
     if(curren == NULL){
         printf("b is null at search compatibility\n%d\n", tentativas);
-        exit(0);
+        return NULL;
     }
 	while( curren != NULL)
     {
