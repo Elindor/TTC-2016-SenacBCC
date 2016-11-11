@@ -103,6 +103,7 @@ typedef struct _mapa
 
 void printList();
 void printListTemp();
+void printListTempSpecific(GPRoomList *t);
 int length();
 
 GPMap* generateGeneticMap(GPMap *mapa);

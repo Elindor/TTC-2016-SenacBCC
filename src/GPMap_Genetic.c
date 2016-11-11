@@ -696,10 +696,10 @@ GPMap* generateGeneticMap(GPMap *mapa){
            //printListTemp();
 
 
-             current = DeleteVoidDoors(map,x,y,g,current);
+            current = DeleteVoidDoors(map,x,y,g,current);
             printf("removidas portas vazia --- Sala base: %d\n",map->grid[x][y]->id);
             //printList();
-            printListTemp();
+            printListTempSpecific(current);
             //printf("\nAdiconando compatibilidade\n");
 
 
@@ -1382,8 +1382,14 @@ void printList(){
 }
 
 void printListTemp(){
+    printListTempSpecific(NULL);
+}
+
+void printListTempSpecific(GPRoomList *t){
+
        GPRoomList *ptr = current;
        GPRoomList *a;
+       if(t != NULL) ptr = t;
        printf("\nCurrent :: [ ");
 
        //start from the beginning
@@ -1810,7 +1816,7 @@ int SeachIncopatibilityEntrace(GMRoom *atual,GMRoom *talvez){
 }
 
 
-GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPRoomList *head){
+GPRoomList* DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPRoomList *head){
 
 	int tx, ty;
 	int i = 0;
@@ -1826,7 +1832,7 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPR
 		}
 		tx = ponto.x + 1;
 		test= mapa->height-1;
-		if(tx>=test){
+		if(tx >=test){
 		    i++;
           //  printf("Porta O invalida encontrada\n");
             curren = DeleteAllG("L", curren);
@@ -1844,7 +1850,8 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPR
           //  printf("Porta S invalida encontrada\n");
             curren = DeleteAllG("S", curren);
 		}
-
+        printf("\nDelete por Canto\n");
+        printListTempSpecific( curren);
 	   //remove sala que vão causar conflito
         // Pegando as informaçãos das salas laterais do ponto
         int id1,id2,id3, id4;
@@ -1942,8 +1949,8 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPR
                     i++;
                     curren = DeleteOffG("S", curren);
                 }else{
-                        i++;
-                        curren = DeleteAllG("S", curren);
+                    i++;
+                    curren = DeleteAllG("S", curren);
 
                 }
             }
@@ -1964,9 +1971,11 @@ GPRoomList*  DeleteVoidDoors(GPGenetic_Map *mapa, int x, int y,GmPonto ponto,GPR
             }
         }
 
+    printf("\nDelete por salas\n");
+    printListTempSpecific(curren);
 
     if(i == 0)
-        return head;
+        return curren;
 
 	return curren;
 
