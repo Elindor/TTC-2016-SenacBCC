@@ -20,8 +20,6 @@ typedef struct _ponto{
     int x;
 }GmPonto;
 
-
-
 typedef struct _Door{
 
 	int idRoomX;

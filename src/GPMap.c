@@ -212,7 +212,7 @@ GPMap* generateMap(char*mapCorePath){
 	switch(map->generation){
         case GPGenerationType_Genetic:{
 
-            generateGeneticMap(map);
+            map = generateGeneticMap(map);
 
             break;
 
@@ -231,6 +231,8 @@ GPMap* generateMap(char*mapCorePath){
 
 	}
 
+    outputCurrentMapToStream(map);
+    
     return map;
 }
 
@@ -276,22 +278,24 @@ void outputCurrentMapToFile(GPMap *map, char* filename){
 
 void outputCurrentMapToStream(GPMap *map){
     int i, j;
-
+    
     printf("\n-----------------------------\n     Printing Started     \n-----------------------------\n");
     printf("Map Name: %s\nSized with width %d and height %d\n\n Printing grid \n\n", map->name, map->width, map->height);
-
+    
     for (i = 0; i < map->width; i++){
+        printf("{");
+        
         for(j = 0; j < map->height; j++){
             GMTile *t = getTile(map, i, j);
-            printf("%2d ",t->id); /* write */
+            printf("%2d, ",t->id); /* write */
         }
-        printf("\n ");
+        printf("},\n ");
     }
-
+    
     printf("\n-----------------------------\n     Printing Finished     \n-----------------------------\n");
-
+    
     return;
-
+    
 }
 
 GMTile *getTile (GPMap *map, int xPosition, int yPosition){

@@ -33,6 +33,7 @@ int generatingCompati;
 
 static void process_genetic_content_value(json_value* value, int depth, char* name);
 GMRoom *getRoom (GPGenetic_Map *map, int xPosition, int yPosition);
+void imprintRoomsIntoGrid(GPMap *gridMap, GPGenetic_Map *roomMap);
 
 static void process_genetic_content_object(json_value* value, int depth)
 {
@@ -128,11 +129,16 @@ static void process_genetic_content_array(json_value* value, int depth)
             geneticContent->first->compativeExit = b;
         }
         else if(generatingMap){
+            
+            if(x == 0){
                 int w = geneticContent->first->width;
                 int h = geneticContent->first->height;
                 geneticContent->first->mapIntern = malloc(w * h * sizeof *geneticContent->first->mapIntern);
                 geneticContent->first->mapIntern[0] = 0;
                 currGrid = 0;
+            }
+
+            
         }
 
         process_genetic_content_value(value->u.array.values[x], depth, NULL);
@@ -291,6 +297,10 @@ static void process_genetic_content_value(json_value* value, int depth, char* na
 
             break;
         case json_integer:
+            if(name == NULL && generatingMap){
+                geneticContent->first->mapIntern[currGrid] = (int) value->u.integer;
+                currGrid++;
+            }
             if(name == NULL)
                 return;
             if(!strcmp (name,"Id")){
@@ -317,11 +327,7 @@ static void process_genetic_content_value(json_value* value, int depth, char* na
                     t->idNextdoor = 0;
                     printf("ID NEXT: %d\n", t->idNextdoor);
                 }
-                if(generatingMap){
 
-                    geneticContent->first->mapIntern[currGrid] = value->u.integer;
-                    currGrid++;
-                }
 
             }
             else if(!strcmp (name,"Type")){
@@ -825,7 +831,9 @@ GPMap* generateGeneticMap(GPMap *mapa){
             }
         }
 
-
+    
+    imprintRoomsIntoGrid(mapa, map);
+    
     return mapa;
 }
 
@@ -1327,7 +1335,7 @@ GmPonto discartmap(GPGenetic_Map *mapa, GmPonto ponto){
 
         for(j = 0; j < mapa->height; j ++){
             GMRoom *old = getRoom(mapa, i, j);
-            free(old->doors);
+            //free(old->doors);
             free(old);
 
             GMRoom *tiler = malloc(sizeof(GMRoom));
@@ -1617,7 +1625,7 @@ GPRoomList* SeachCopatibility(GMRoom *atual, GPRoomList *head){
 }
 
 GPRoomList* deleteid(int key, GPRoomList *head){
-
+    
    //start from the first link
     GPRoomList* curren = head;
     GPRoomList* previous = NULL;
@@ -1646,9 +1654,10 @@ GPRoomList* deleteid(int key, GPRoomList *head){
    if(curren == head) {
       //change first to point to next link
       previous = curren;
-      curren = curren->next;
-      free(previous);
-        return curren;
+      //curren = curren->next;
+       head = head->next;
+      //free(previous);
+        return head;
    }else {
       //bypass the current link
       previous->next = curren->next;
@@ -2266,7 +2275,8 @@ GMRoom *getRoom (GPGenetic_Map *map, int xPosition, int yPosition){
 void FixRoom(GPGenetic_Map *map, GmPonto ponto, int fonte){
     GMRoom*FontedeDados = seach(fonte,head);
     int i = 0;
-
+    int x, y;
+    
     map->grid[ponto.x][ponto.y]->id = FontedeDados->id;
     map->grid[ponto.x][ponto.y]->height = FontedeDados->height;
     map->grid[ponto.x][ponto.y]->width = FontedeDados->width;
@@ -2277,6 +2287,16 @@ void FixRoom(GPGenetic_Map *map, GmPonto ponto, int fonte){
     strcpy(map->grid[ponto.x][ponto.y]->gene,FontedeDados->gene);
 
     strncpy(map->grid[ponto.x][ponto.y]->name,FontedeDados->name,sizeof(map->grid[ponto.x][ponto.y]->name));
+    
+    map->grid[ponto.x][ponto.y]->mapIntern = FontedeDados->mapIntern; //(Maybe we can SHARE this!)
+//    map->grid[ponto.x][ponto.y]->mapIntern = FontedeDados->mapIntern = malloc(FontedeDados->width * FontedeDados->height * sizeof *FontedeDados->mapIntern);
+//    
+//    for(y = 0; y < FontedeDados->height; y++)
+//        for(x = 0; x < FontedeDados->width ; x++){
+//            map->grid[ponto.x][ponto.y]->mapIntern[y*FontedeDados->height + x] = FontedeDados->mapIntern[y*FontedeDados->height + x];
+//        }
+
+    
     /*
     int j = map->grid[ponto.x][ponto.y]->height  * map->grid[ponto.x][ponto.y]->width
 
@@ -2330,7 +2350,83 @@ void FixRoom(GPGenetic_Map *map, GmPonto ponto, int fonte){
 }
 
 
+void setGridTo(GMTile *tile, int id){
+    
+    GMTileType *tileType = content1->first;
+    while (tileType->id != id) {   // searches for a type with same ID than spread.
+        tileType = tileType->next;
+        if(tileType == NULL){
+            printf("Could not find content tile of Id %d when attempting to generate content from a room inner map. Double check if any room gridmap contains an tile of unregistered id.\n Aborting.\n", tile->id);
+            exit(0);
+        }
+    }
+    
+    tile->id = tileType->id;
+    tile->name = tileType->name;
+    tile->imageDir = tileType->imageDir;
+    tile->type = tileType->type;
+    tile->token = 2; // set for spreadding.
+}
 
+void imprintRoomsIntoGrid(GPMap *gridMap, GPGenetic_Map *roomMap){
+    
+    
+    int trueWidth, trueHeight, roomWidth, roomHeight, i, j;
+    roomWidth = geneticContent->first->width;
+    trueWidth = roomWidth * roomMap->width;
+    roomHeight = geneticContent->first->height;
+    trueHeight = roomHeight * roomMap->height;
+    
+    
+    
+    
+    gridMap->grid = (GMTile***)malloc(sizeof(GMTile**) * trueWidth);
+    for(i = 0; i < trueWidth; i ++){
+        gridMap->grid[i] = (GMTile**)malloc(sizeof(GMTile*) * trueHeight);
+        for(j = 0; j < trueHeight; j ++){
+            GMTile *tiler = malloc(sizeof(GMTile));
+            tiler->id = 0;
+            tiler->type = 1;
+            tiler->name = "Unprocessed";
+            gridMap->grid[i][j] = tiler;
+            
+        }
+        
+    }
+    
+    GMRoom *room;
+    for(i = 0; i < roomMap->height; i ++){
+        for(j = 0; j < roomMap->width; j++){
+            int xOffSet = i * roomWidth;
+            int yOffset = j * roomHeight;
+            int x, y;
+            room = getRoom(roomMap, i, j);
+//            int roomId = room->id;
+//            
+//            GMRoom *roomTemplate = geneticContent->first;
+//            while (roomTemplate->id != roomId) {   // searches for a type with same ID than spread.
+//                tileType = roomTemplate->next;
+//                if(roomTemplate == NULL){
+//                    printf("WUT\n");
+//                    exit(0);
+//                }
+//            }
+            if(room->id != 0){
+                for(y = 0; y < roomHeight; y++)
+                    for(x = 0; x < roomWidth; x++){
+                        int tileId = room->mapIntern[y*roomHeight + x];
+                        setGridTo(getTile(gridMap, xOffSet + x, yOffset + y), tileId);
+                    }
+            }
+            
+
+        }
+    }
+    
+    gridMap->width = trueWidth;
+    gridMap->height = trueHeight;
+
+}
 
 
 
