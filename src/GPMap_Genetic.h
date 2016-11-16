@@ -8,7 +8,7 @@
 typedef struct _Crossover{
 
 	int id; // não necessita dos dois
-	char *genes;
+	char genes[10];
 	int chance; // na incompatibilidade é ignorado
     struct _Crossover *next;
 
@@ -103,17 +103,20 @@ typedef struct _mapa
 
 void printList();
 void printListTemp();
+void printListTempSpecific(GPRoomList *t);
 int length();
 
 GPMap* generateGeneticMap(GPMap *mapa);
 GMRoom* seach(int key,GGnode*head);
-GPRoomList* GerateListPosibylit(char *gene, GGnode *alpha);
+GPRoomList* GerateListPosibylit(char *gene, GGnode *alpha, GMRoom *atual);
 
 GPRoomList* SeachCopatibility(GMRoom *atual, GPRoomList *head);
 GPRoomList* deleteid(int key, GPRoomList *head);
-GPRoomList* SeachIncopatibility(char *gene, GPRoomList *head);
-GPRoomList* SeachIncopatibilityid(int salaid, GPRoomList *head);
-GPRoomList* SeachIncopatibilityExit(GMRoom *atual, GPRoomList *head);
+//GPRoomList* SeachIncopatibility(char *gene, GPRoomList *head);
+//GPRoomList* SeachIncopatibilityid(int salaid, GPRoomList *head);
+//GPRoomList* SeachIncopatibilityExit(GMRoom *atual, GPRoomList *head);
+int SeachIncopatibilityExit(GMRoom *atual, GMRoom *talvez);
+int SeachIncopatibilityEntrace(GMRoom *atual, GMRoom *talvez);
 
 GPRoomList* DeleteEG(char *key, GPRoomList *head);
 GPRoomList* DeleteAllG(char *key, GPRoomList *head);
