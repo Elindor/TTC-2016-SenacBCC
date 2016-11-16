@@ -2,7 +2,7 @@
 
 GGnode *head;
 GPRoomList *current;
-GMRoomContent *content;
+GMRoomContent *geneticContent;
 GMAutomataContent *content1;
 static GPGenetic_Map *map;
 int currGrid;
@@ -21,8 +21,8 @@ static void print_depth_shift(int depth)
 
 
 
-int generatingTile;
-int generatingScatter;
+int generatingGeneticTile;
+int generatingGeneticScatter;
 int generatingRoom;
 int generatingMap;
 int generatingDoor;
@@ -58,7 +58,7 @@ static void process_genetic_content_array(json_value* value, int depth)
     printf("array\n");
     for (x = 0; x < length; x++) {
         // Reads new array: if is tile processing, creates new tile and pushes, otherwise, creates new scatter.
-        if(generatingTile){
+        if(generatingGeneticTile){
 
             GMTileType *a = content1->first;
             GMTileType *b = malloc(sizeof(GMTileType));
@@ -67,7 +67,7 @@ static void process_genetic_content_array(json_value* value, int depth)
         }
         if(generatingRoom){
 
-            if(content->first == NULL){
+            if(geneticContent->first == NULL){
                 GMRoom *a = malloc(sizeof(GMRoom));
                 a->next = NULL;
                 a->doors = NULL;
@@ -75,10 +75,10 @@ static void process_genetic_content_array(json_value* value, int depth)
                 a->compativeExit = NULL;
                 a->incompativeEntrad = NULL;
                 a->incompative = NULL;
-                content->first = a;
+                geneticContent->first = a;
             }
             else{
-                GMRoom *a = content->first;
+                GMRoom *a = geneticContent->first;
                 GMRoom *b = malloc(sizeof(GMRoom));
                 b->next = a;
                 b->doors = NULL;
@@ -86,10 +86,10 @@ static void process_genetic_content_array(json_value* value, int depth)
                 b->compativeExit = NULL;
                 b->incompativeEntrad = NULL;
                 b->incompative = NULL;
-                content->first = b;
+                geneticContent->first = b;
             }
         }
-        else if(generatingScatter && !generatingTile){
+        else if(generatingGeneticScatter && !generatingGeneticTile){
             GMTileType *tile = content1->first;
             GMScatterChance *a = tile->scatter;
             GMScatterChance *b = malloc(sizeof(GMScatterChance));
@@ -97,41 +97,41 @@ static void process_genetic_content_array(json_value* value, int depth)
             tile->scatter = b;
         }
         else if(generatingDoor){
-            if(content->first->doors == NULL){
+            if(geneticContent->first->doors == NULL){
                 GMDoor *a = malloc(sizeof(GMDoor));
                 a->next = NULL;
-                content->first->doors = a;
+                geneticContent->first->doors = a;
             }else{
-                GMDoor *a = content->first->doors;
+                GMDoor *a = geneticContent->first->doors;
                 GMDoor *b = malloc(sizeof(GMDoor));
                 b->next = a;
-                content->first->doors = b;
+                geneticContent->first->doors = b;
             }
 
         }
         else if(generatingIncompaentrade){
-            GmCrossover *a = content->first->incompativeEntrad;
+            GmCrossover *a = geneticContent->first->incompativeEntrad;
             GmCrossover *b = malloc(sizeof(GmCrossover));
             b->next = a;
-            content->first->incompativeEntrad = b;
+            geneticContent->first->incompativeEntrad = b;
         }
         else if(generatingIncompaexit){
-            GmCrossover *a = content->first->incompative;
+            GmCrossover *a = geneticContent->first->incompative;
             GmCrossover *b = malloc(sizeof(GmCrossover));
             b->next = a;
-            content->first->incompative = b;
+            geneticContent->first->incompative = b;
         }
         else if(generatingCompati){
-            GmCrossover *a = content->first->compativeExit;
+            GmCrossover *a = geneticContent->first->compativeExit;
             GmCrossover *b = malloc(sizeof(GmCrossover));
             b->next = a;
-            content->first->compativeExit = b;
+            geneticContent->first->compativeExit = b;
         }
         else if(generatingMap){
-                int w = content->first->width;
-                int h = content->first->height;
-                content->first->mapIntern = malloc(w * h * sizeof *content->first->mapIntern);
-                content->first->mapIntern[0] = 0;
+                int w = geneticContent->first->width;
+                int h = geneticContent->first->height;
+                geneticContent->first->mapIntern = malloc(w * h * sizeof *geneticContent->first->mapIntern);
+                geneticContent->first->mapIntern[0] = 0;
                 currGrid = 0;
         }
 
@@ -161,26 +161,26 @@ static void process_genetic_content_value(json_value* value, int depth, char* na
             if(name == NULL)
                 return;
             if(!strcmp (name,"Tiles")){
-                generatingTile = 1;
+                generatingGeneticTile = 1;
                 generatingRoom = 0;
                 process_genetic_content_array(value, depth+1);
-                generatingTile = 0;
+                generatingGeneticTile = 0;
                 generatingRoom = 0;
             }
             if(!strcmp (name,"ScatterRules")){
-                generatingScatter = 1;
-                generatingTile = 0;
+                generatingGeneticScatter = 1;
+                generatingGeneticTile = 0;
 
                 process_genetic_content_array(value, depth+1);
 
-                generatingScatter = 0;
-                generatingTile = 1;
+                generatingGeneticScatter = 0;
+                generatingGeneticTile = 1;
             }
             if(!strcmp (name,"Rooms")){
                 generatingRoom = 1;
-                generatingTile = 0;
+                generatingGeneticTile = 0;
                 process_genetic_content_array(value, depth+1);
-                generatingTile = 0;
+                generatingGeneticTile = 0;
                 generatingRoom = 0;
 
             }
@@ -189,8 +189,8 @@ static void process_genetic_content_value(json_value* value, int depth, char* na
                 generatingDoor = 0;
 
                 generatingRoom = 0;
-                generatingScatter = 0;
-                generatingTile = 0;
+                generatingGeneticScatter = 0;
+                generatingGeneticTile = 0;
 
                 process_genetic_content_array(value, depth+1);
 
@@ -198,16 +198,16 @@ static void process_genetic_content_value(json_value* value, int depth, char* na
                 generatingDoor = 0;
 
                 generatingRoom = 1;
-                generatingScatter = 0;
-                generatingTile = 0;
+                generatingGeneticScatter = 0;
+                generatingGeneticTile = 0;
             }
             if(!strcmp (name,"Doors")){
                 generatingMap = 0;
                 generatingDoor = 1;
 
                 generatingRoom = 0;
-                generatingScatter = 0;
-                generatingTile = 0;
+                generatingGeneticScatter = 0;
+                generatingGeneticTile = 0;
 
                 process_genetic_content_array(value, depth+1);
 
@@ -215,8 +215,8 @@ static void process_genetic_content_value(json_value* value, int depth, char* na
                 generatingDoor = 0;
 
                 generatingRoom = 1;
-                generatingScatter = 0;
-                generatingTile = 0;
+                generatingGeneticScatter = 0;
+                generatingGeneticTile = 0;
             }
 
             if(!strcmp (name,"IncompatibilityWithExit")){
@@ -224,8 +224,8 @@ static void process_genetic_content_value(json_value* value, int depth, char* na
                 generatingDoor = 0;
 
                 generatingRoom = 0;
-                generatingScatter = 0;
-                generatingTile = 0;
+                generatingGeneticScatter = 0;
+                generatingGeneticTile = 0;
                 generatingCompati = 0;
                 generatingIncompaentrade = 0;
                 generatingIncompaexit = 1;
@@ -239,16 +239,16 @@ static void process_genetic_content_value(json_value* value, int depth, char* na
                 generatingDoor = 0;
 
                 generatingRoom = 1;
-                generatingScatter = 0;
-                generatingTile = 0;
+                generatingGeneticScatter = 0;
+                generatingGeneticTile = 0;
             }
             if(!strcmp (name,"IncompatibilityWithEntrad")){
                 generatingMap = 0;
                 generatingDoor = 0;
 
                 generatingRoom = 0;
-                generatingScatter = 0;
-                generatingTile = 0;
+                generatingGeneticScatter = 0;
+                generatingGeneticTile = 0;
                 generatingCompati = 0;
                 generatingIncompaentrade = 1;
                 generatingIncompaexit = 0;
@@ -262,16 +262,16 @@ static void process_genetic_content_value(json_value* value, int depth, char* na
                 generatingDoor = 0;
 
                 generatingRoom = 1;
-                generatingScatter = 0;
-                generatingTile = 0;
+                generatingGeneticScatter = 0;
+                generatingGeneticTile = 0;
             }
             if(!strcmp (name,"CompatibilityWithExit")){
                 generatingMap = 0;
                 generatingDoor = 0;
 
                 generatingRoom = 0;
-                generatingScatter = 0;
-                generatingTile = 0;
+                generatingGeneticScatter = 0;
+                generatingGeneticTile = 0;
                 generatingCompati = 1;
                 generatingIncompaentrade = 0;
                 generatingIncompaexit = 0;
@@ -285,8 +285,8 @@ static void process_genetic_content_value(json_value* value, int depth, char* na
                 generatingDoor = 0;
 
                 generatingRoom = 1;
-                generatingScatter = 0;
-                generatingTile = 0;
+                generatingGeneticScatter = 0;
+                generatingGeneticTile = 0;
             }
 
             break;
@@ -294,24 +294,24 @@ static void process_genetic_content_value(json_value* value, int depth, char* na
             if(name == NULL)
                 return;
             if(!strcmp (name,"Id")){
-                if(generatingTile){
+                if(generatingGeneticTile){
                     GMTileType *t = content1->first;
                     printf("Acquired tile Id: %lld\n", value->u.integer);
                     t->id = (int)value->u.integer;
                 }
-                if(generatingScatter){
+                if(generatingGeneticScatter){
                     GMScatterChance *t = content1->first->scatter;
                     printf("Acquired scatter Id: %lld\n", value->u.integer);
                     t->id = (int)value->u.integer;
                 }
                 if(generatingRoom){
-                    GMRoom *t = content->first;
+                    GMRoom *t = geneticContent->first;
                     printf("Acquired room Id: %lld\n", value->u.integer);
                     t->id = (int)value->u.integer;
 
                 }
                 if(generatingDoor){
-                    GMDoor *t = content->first->doors;
+                    GMDoor *t = geneticContent->first->doors;
                     printf("Acquired door Id: %lld\n", value->u.integer);
                     t->idDoor = (int)value->u.integer;
                     t->idNextdoor = 0;
@@ -319,7 +319,7 @@ static void process_genetic_content_value(json_value* value, int depth, char* na
                 }
                 if(generatingMap){
 
-                    content->first->mapIntern[currGrid] = value->u.integer;
+                    geneticContent->first->mapIntern[currGrid] = value->u.integer;
                     currGrid++;
                 }
 
@@ -331,24 +331,24 @@ static void process_genetic_content_value(json_value* value, int depth, char* na
             }
             else if(!strcmp (name,"Chance")){
 			//
-				if(generatingScatter){
+				if(generatingGeneticScatter){
                     GMScatterChance *t = content1->first->scatter;
 					printf("Acquired scatter chance: %lld\n", value->u.integer);
 					t->chance = (int)value->u.integer;
 				}
 				if(generatingRoom){
-					GMRoom *t = content->first;
+					GMRoom *t = geneticContent->first;
 					printf("Acquired Room chance: %lld\n", value->u.integer);
 					t->chance = (int)value->u.integer;
 				}
 				if(generatingCompati){
-					GmCrossover *t = content->first->compativeExit;
+					GmCrossover *t = geneticContent->first->compativeExit;
 					printf("Acquired compative chance: %lld\n", value->u.integer);
 					t->chance = (int)value->u.integer;
 				}
             }
             else if(!strcmp (name,"Tam")){
-                GMRoom *t = content->first;
+                GMRoom *t = geneticContent->first;
                 printf("Acquired Tamanho de sala: %lld\n", value->u.integer);
                 t->Tam = (int)value->u.integer;
             }
@@ -356,12 +356,12 @@ static void process_genetic_content_value(json_value* value, int depth, char* na
 			else if(!strcmp (name,"Width")){
 
 				if(generatingRoom){
-					GMRoom  *t = content->first;
+					GMRoom  *t = geneticContent->first;
 					printf("Acquired room width: %lld\n", value->u.integer);
 					t->width = (int)value->u.integer;
 				}
 				if(generatingDoor){
-					GMDoor  *t = content->first->doors;
+					GMDoor  *t = geneticContent->first->doors;
 					printf("Acquired door width: %lld\n", value->u.integer);
 					t->idRoomY = (int)value->u.integer;
 				}
@@ -369,12 +369,12 @@ static void process_genetic_content_value(json_value* value, int depth, char* na
 			else if(!strcmp (name,"Height")){
 
 				if(generatingRoom){
-					GMRoom  *t = content->first;
+					GMRoom  *t = geneticContent->first;
 					printf("Acquired room height: %lld\n", value->u.integer);
 					t->height = (int)value->u.integer;
 				}
 				if(generatingDoor){
-					GMDoor  *t = content->first->doors;
+					GMDoor  *t = geneticContent->first->doors;
 					printf("Acquired door height : %lld\n", value->u.integer);
 					t->idRoomX = (int)value->u.integer;
 				}
@@ -383,17 +383,17 @@ static void process_genetic_content_value(json_value* value, int depth, char* na
 			else if(!strcmp (name,"RoomId")){
 				//
 				if(generatingCompati){
-					GmCrossover *t = content->first->compativeExit;
+					GmCrossover *t = geneticContent->first->compativeExit;
 					printf("Acquired Room ID for compatividade: %lld\n", value->u.integer);
 					t->id = (int)value->u.integer;
 				}
 				if(generatingIncompaentrade){
-					GmCrossover *t = content->first->incompativeEntrad;
+					GmCrossover *t = geneticContent->first->incompativeEntrad;
 					printf("Acquired Room ID de incompatividade de entrada: %lld\n", value->u.integer);
 					t->id = (int)value->u.integer;
 				}
 				if(generatingIncompaexit){
-					GmCrossover *t = content->first->incompative;
+					GmCrossover *t = geneticContent->first->incompative;
 					printf("Acquired Room ID de incompatividade de saida: %lld\n", value->u.integer);
 					t->id = (int)value->u.integer;
 				}
@@ -410,13 +410,13 @@ static void process_genetic_content_value(json_value* value, int depth, char* na
             if(name == NULL)
                 return;
             if(!strcmp (name,"Name")){
-                if(generatingTile){
+                if(generatingGeneticTile){
                     GMTileType *t = content1->first;
                     printf("Acquired Tile Name: %s\n", value->u.string.ptr);
                     t->name = getCopyFromString(value->u.string.ptr);
                 }
                 if(generatingRoom){
-                    GMRoom *t = content->first;
+                    GMRoom *t = geneticContent->first;
                     printf("Acquired Room Name: %s\n", value->u.string.ptr);
                     //t->name, = getCopyFromString(value->u.string.ptr);
                      strcpy(t->name, value->u.string.ptr);
@@ -429,30 +429,30 @@ static void process_genetic_content_value(json_value* value, int depth, char* na
             }
             else if(!strcmp (name,"Gene")){
                 if(generatingRoom){
-                    GMRoom *t = content->first;
+                    GMRoom *t = geneticContent->first;
                     printf("Acquired Room genes: %s\n", value->u.string.ptr);
                     t->gene = getCopyFromString(value->u.string.ptr);
                 }
                 if(generatingDoor){
-                    GMDoor *t = content->first->doors;
+                    GMDoor *t = geneticContent->first->doors;
                     printf("Acquired Door gene: %s\n", value->u.string.ptr);
                     t->gene = getCopyFromString(value->u.string.ptr);
                 }
                 if(generatingIncompaentrade)
                 {
-                    GmCrossover *t = content->first->incompativeEntrad;
+                    GmCrossover *t = geneticContent->first->incompativeEntrad;
                     printf("Acquired gene for incompative entrande: %s\n", value->u.string.ptr);
                     t->genes = getCopyFromString(value->u.string.ptr);
                 }
                 if(generatingIncompaexit)
                 {
-                    GmCrossover *t = content->first->incompative;
+                    GmCrossover *t = geneticContent->first->incompative;
                     printf("Acquired gene for incompative exit: %s\n", value->u.string.ptr);
                     t->genes = getCopyFromString(value->u.string.ptr);
                 }
                 if(generatingCompati)
                 {
-                    GmCrossover *t = content->first->compativeExit;
+                    GmCrossover *t = geneticContent->first->compativeExit;
                     printf("Acquired Compative gene: %s\n", value->u.string.ptr);
                     t->genes = getCopyFromString(value->u.string.ptr);
                 }
@@ -573,8 +573,8 @@ GPMap* generateGeneticMap(GPMap *mapa){
     }
         printf("C\n");
 
-    content = malloc(sizeof(GMRoomContent));
-    content->first = NULL;
+    geneticContent = malloc(sizeof(GMRoomContent));
+    geneticContent->first = NULL;
     content1 = malloc(sizeof(GMAutomataContent));
         printf("D\n");
 
@@ -606,7 +606,7 @@ GPMap* generateGeneticMap(GPMap *mapa){
     printf("%d %d\n", map->height, map->width);
 
 
-    head->sala = content->first;
+    head->sala = geneticContent->first;
     /*int startX = 3;//PMrand()%map->height;
     int starty = 3; //PMrand()%map->width;
     */
@@ -2204,6 +2204,12 @@ void FixRoom(GPGenetic_Map *map, GmPonto ponto, int fonte){
     }
 
 }
+
+
+
+
+
+
 
 
 void print_genetic_grid(GPGenetic_Map *map){

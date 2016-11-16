@@ -16,7 +16,7 @@ int main(int argc, const char * argv[]) {
     srand (time(NULL));
     printf("Starting to generate\n");
 
-    generateMap("C:/Users/Denis/Downloads/core.json");
+    generateMap("core.json");
 
     clock_t end = clock();
     time_spent += (double)(end - start) / CLOCKS_PER_SEC;

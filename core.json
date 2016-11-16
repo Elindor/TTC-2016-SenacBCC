@@ -5,6 +5,6 @@
 	"Height": 8,
 	"MinimalContent": 10,
 	"MaximumContent": 63,
-	"ConditionSet": "C:/Users/Denis/Downloads/condition.json",
-	"ContentSet": "C:/Users/Denis/Downloads/contentEXE.json"
+	"ConditionSet": "condition.json",
+	"ContentSet": "contentEXE.json"
 }
